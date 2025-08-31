@@ -60,7 +60,7 @@ class PdfAdapter(
             val readableSize = formatFileSize(sizeBytes)
             holder.binding.title.text = list[position].fileName
             holder.binding.timeAgoTxt.text = "${Utils.timeAgo(list[position].time)}    ${readableSize.toString()}"
-            holder.binding.pageTxt.text = Constants.totalPdfCount.toString()
+            holder.binding.pageTxt.text = "page ${Constants.totalPdfCount.toString()}"
 
             holder.binding.mainLayout.setOnClickListener {
                 val item = list[position]
