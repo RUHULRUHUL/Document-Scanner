@@ -1,0 +1,54 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_bar"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="@color/background"
+    android:elevation="5dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <!-- Left Side Text -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Document scanner"
+        android:textColor="@color/textColor"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ivIcon1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- First Icon (Right side) -->
+    <ImageView
+        android:id="@+id/ivIcon1"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="Search"
+        android:src="@drawable/ic_app_setting"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ivIcon2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/textColor" />
+
+    <!-- Second Icon (Right side) -->
+    <ImageView
+        android:id="@+id/ivIcon2"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="Settings"
+        android:src="@drawable/ic_app_setting"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/textColor" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

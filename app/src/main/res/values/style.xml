@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!--    Spinner Style   -->
+    <style name="dropDownInputFieldStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="errorTextColor">@color/errorColor</item>
+        <item name="boxStrokeErrorColor">@color/errorColor</item>
+        <item name="errorIconTint">@android:color/transparent</item>
+        <item name="hintEnabled">true</item>
+        <item name="errorEnabled">false</item>
+        <item name="hintAnimationEnabled">true</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">1dp</item>
+        <item name="hintTextColor">@color/hintColor</item>
+        <item name="android:textColorHint">@color/hintColor</item>
+        <item name="boxCornerRadiusTopStart">@dimen/space_8</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/space_8</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/space_8</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/space_8</item>
+        <item name="hintTextAppearance">@style/inputFieldHintTextAppearance</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="endIconDrawable">@drawable/baseline_arrow_drop_down_24</item>
+    </style>
+        EditText Style
+
+
+
+    <style name="matchParentWrapContent" parent="matchParent">
+        <item name="android:layout_height">@dimen/space_45</item>
+    </style>
+    <style name="matchParent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/space_40</item>
+    </style>
+
+
+    <style name="inputFieldStyle" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox.Dense">
+        <item name="errorTextColor">@color/errorColor</item>
+        <item name="boxStrokeErrorColor">@color/errorColor</item>
+        <item name="errorIconTint">@android:color/transparent</item>
+        <item name="hintEnabled">true</item>
+        <item name="endIconTint">@color/textColor</item>
+        <item name="marginHorizontal">@dimen/space_10</item>
+        <item name="errorEnabled">false</item>
+        <item name="hintAnimationEnabled">true</item>
+        <item name="hintTextColor">@color/hintColor</item>
+        <item name="android:textColorHint">@color/hintColor</item>
+        <item name="boxCornerRadiusTopStart">@dimen/space_8</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/space_8</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/space_8</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/space_8</item>
+        <item name="hintTextAppearance">@style/inputFieldHintTextAppearance</item>
+        <item name="errorTextAppearance">@style/inputFieldErrorTextAppearance</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="boxStrokeWidthFocused">1dp</item>
+        <item name="boxStrokeWidth">1dp</item>
+    </style>
+
+    <style name="inputFieldHintTextAppearance" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
+
+    <style name="inputFieldErrorTextAppearance" parent="TextAppearance.Design.Error">
+        <item name="android:textSize">10sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:padding">0dp</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
+
+
+</resources>

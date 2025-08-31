@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Define the background color of the oval -->
+    <solid android:color="#00BCD4" />
+
+    <!-- Define the size of the oval -->
+    <size
+        android:width="10dp"
+        android:height="10dp" />
+</shape>
