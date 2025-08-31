@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
@@ -21,7 +23,7 @@ import com.bugbd.pdfprinter.helper.PermissionHelper
 import com.bugbd.pdfprinter.helper.Utils
 import com.bugbd.pdfprinter.helper.getRequiredPermissions
 import com.bugbd.qrcode.model.LanguageSupported
-import com.bugbd.qrcode.model.supportedLanguages
+import com.bugbd.qrcode.model.supportedLanguagesV2
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
@@ -91,6 +93,19 @@ class LanguageSelectedActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
+
+
+        val htmlText = """
+            <b>Auto-detect:</b> Latin script languages (e.g., English, Spanish, French)<br><br>
+            <b>Manual selection required:</b><br>
+            - Devanagari languages (Bangla, Hindi, Marathi, Nepali)<br>
+            - CJK languages (Chinese, Japanese, Korean)<br><br>
+            Select manually to ensure accurate text recognition.
+        """.trimIndent()
+
+        binding.pdfLabelTxt.text =
+            Html.fromHtml(htmlText, Html.FROM_HTML_MODE_LEGACY)
+
         permissionHelper = PermissionHelper(context = this, activity = this) {}
         permissionHelper.initLauncher {
             permissionLauncher = it
@@ -118,12 +133,12 @@ class LanguageSelectedActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
 
-        val adapter = LanguageAdapter(supportedLanguages, this) { selectedItem ->
+        val adapter = LanguageAdapter(supportedLanguagesV2, this) { selectedItem ->
             selectLanguageObj = selectedItem
-            binding.gotoScan.text = selectedItem.name
+            binding.gotoScan.text = "Open camera:  ${selectedItem.name}"
         }
 
-        binding.languageRV.layoutManager = GridLayoutManager(this, 3)
+        binding.languageRV.layoutManager = GridLayoutManager(this, 2)
         binding.languageRV.adapter = adapter
     }
 

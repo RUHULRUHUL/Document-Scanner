@@ -12,7 +12,7 @@ import com.bugbd.qrcode.model.LanguageSupported
 class LanguageAdapter(
     private val list: List<LanguageSupported>,
     val context: Context,
-    private var selectedPosition: Int = -1,
+    private var selectedPosition: Int = 0, // default 0
     private val onItem: (item: LanguageSupported) -> Unit
 ) : RecyclerView.Adapter<LanguageAdapter.ViewHolder>() {
 
@@ -26,24 +26,36 @@ class LanguageAdapter(
         )
     }
 
-    override fun getItemCount(): Int {
-        return list.size
+    override fun getItemCount(): Int = list.size
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        try {
+            val item = list[position]
+            holder.binding.txt.text = item.name
+            holder.binding.root.setBackgroundResource(
+                if (position == selectedPosition) R.drawable.selected_round_stroke_bg
+                else R.drawable.stroke_round_bg
+            )
+
+            // Item click
+            holder.itemView.setOnClickListener {
+                val previousPosition = selectedPosition
+                selectedPosition = position
+                notifyItemChanged(previousPosition)
+                notifyItemChanged(selectedPosition)
+                onItem(item)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = try {
-        holder.binding.txt.text = list[position].name
-        holder.binding.root.setBackgroundResource(
-            if (position == selectedPosition) R.drawable.selected_round_stroke_bg
-            else R.drawable.stroke_round_bg
-        )
-        holder.itemView.setOnClickListener {
-            onItem(list[position])
-            notifyItemChanged(selectedPosition)
-            selectedPosition = position
-            notifyItemChanged(selectedPosition)
+    init {
+        // Auto-call listener for default selected item
+        if (list.isNotEmpty()) {
+            onItem(list[selectedPosition])
         }
-    } catch (e: Exception) {
-        e.printStackTrace()
     }
+
     class ViewHolder(val binding: LanguageRowBinding) : RecyclerView.ViewHolder(binding.root)
 }

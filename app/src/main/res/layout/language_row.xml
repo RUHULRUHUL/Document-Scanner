@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_marginStart="10dp"
         android:src="@drawable/ic_language"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,8 +28,8 @@
         android:layout_marginHorizontal="5dp"
         android:textAlignment="textStart"
         android:textColor="@color/textColor"
-        android:textSize="11sp"
-        android:textStyle="normal"
+        android:textSize="14sp"
+        android:textStyle="bold"
         android:singleLine="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

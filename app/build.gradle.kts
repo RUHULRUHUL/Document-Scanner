@@ -85,4 +85,6 @@ dependencies {
     // To recognize Korean script
     implementation ("com.google.mlkit:text-recognition-korean:16.0.1")
 
+    implementation("com.tbuonomo:dotsindicator:5.1.0")
+
 }
