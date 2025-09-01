@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="@color/topBottomColor"
     tools:context=".MainActivity">
 
 
@@ -22,7 +22,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="6dp"
+        android:layout_height="7dp"
         android:background="@drawable/bottom_shadow"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,10 +48,9 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:contentDescription="@string/app_name"
-        android:outlineSpotShadowColor="@color/gray"
-        android:outlineAmbientShadowColor="@color/gray"
         android:src="@drawable/ic_doc_scanner_white"
         android:translationZ="90dp"
+        android:paddingTop="5dp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintTop_toTopOf="@+id/bottomNavigation"

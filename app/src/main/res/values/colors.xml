@@ -26,4 +26,5 @@
     <color name="historyItemIconBg">#E0F7FA</color>
     <color name="errorColor">#F44336</color>
     <color name="editTextStrokeColor">#9F9F9F</color>
+    <color name="topBottomColor">#FFFFFF</color>
 </resources>
