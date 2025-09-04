@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="120dp"
+    android:orientation="vertical"
+    android:id="@+id/root"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <!-- Rounded container for icon -->
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/item_round_bg"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:clipToPadding="false"
+        android:clipToOutline="true"
+        android:layout_marginBottom="6dp">
+
+        <ImageView
+            android:id="@+id/itemIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pdf_img"
+            android:scaleType="centerCrop" />
+    </FrameLayout>
+
+    <!-- label under the rounded icon -->
+    <TextView
+        android:id="@+id/itemLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Image to pdf"
+        android:textStyle="bold"
+        android:textSize="13sp"
+        android:textColor="@color/textColor"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:gravity="center"/>
+</LinearLayout>

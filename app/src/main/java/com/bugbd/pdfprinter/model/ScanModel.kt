@@ -4,6 +4,7 @@ import android.icu.text.CaseMap.Title
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.bugbd.pdfprinter.R
 import java.io.Serializable
 
 
@@ -110,4 +111,16 @@ val supportedLanguagesV2 = listOf(
     LanguageSupported("मराठी-(Marathi)", "mr", "Deva"),
     LanguageSupported("नेपाली-(Nepali)", "ne", "Deva"),
     LanguageSupported("বাংলা-(Bangla)", "bn", "Deva)")
+)
+
+data class ScanItem(
+    val icon: Int = 0,
+    val title: String=""
+    )
+
+val scanItems = listOf(
+    ScanItem(icon = R.drawable.ic_pdf_img,"Image to pdf"),
+    ScanItem(icon = R.drawable.outline_document_scanner_24,"Document to text"),
+    ScanItem(icon = R.drawable.ic_doc_scanner_white,"ID card scan"),
+    ScanItem(icon = R.drawable.baseline_qr_code_scanner_24,"Bar code scan"),
 )

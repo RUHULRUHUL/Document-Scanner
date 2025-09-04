@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fabRecharge.setOnClickListener {
-            showScanOptionsPopup()
+            openCamera()
         }
         setDarkLightThem(preferenceManager.get("them", "", String::class))
     }
