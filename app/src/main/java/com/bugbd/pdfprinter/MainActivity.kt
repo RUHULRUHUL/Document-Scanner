@@ -9,7 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -17,6 +20,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
@@ -40,6 +44,7 @@ import com.bugbd.pdfprinter.helper.getRequiredPermissions
 import com.bugbd.pdfprinter.helper.logD
 import com.bugbd.pdfprinter.local_bd.ScannerDB
 import com.bugbd.qrcode.model.ScanFile
+import com.google.android.material.card.MaterialCardView
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
@@ -193,18 +198,50 @@ class MainActivity : AppCompatActivity() {
             .create()
         dialog.setCanceledOnTouchOutside(true)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val options = listOf(
+            binding.optionImageToText,
+            binding.optionImageToPdf,
+            binding.idCardLayout
+        )
+
+        fun highlightSelected(selected: View) {
+            options.forEach { it.setBackgroundResource(R.drawable.unselected_bg) }
+            selected.setBackgroundResource(R.drawable.selected_bg)
+        }
+
+        fun handleClick(view: View, action: () -> Unit) {
+            highlightSelected(view)
+            // ⏳ 200ms delay, so user sees the highlight
+            view.postDelayed({
+                dialog.dismiss()
+                action()
+            }, 500)
+        }
+
         // Click Listeners
         binding.optionImageToText.setOnClickListener {
-            dialog.dismiss()
-            startActivity(Intent(this, LanguageSelectedActivity::class.java))
+            handleClick(it) {
+                startActivity(Intent(this, LanguageSelectedActivity::class.java))
+            }
         }
 
         binding.optionImageToPdf.setOnClickListener {
-            dialog.dismiss()
-            openCamera()
+            handleClick(it) { openCamera() }
+        }
+
+        binding.idCardLayout.setOnClickListener {
+            handleClick(it) {
+                Toast.makeText(this, "Id card scan clicked", Toast.LENGTH_SHORT).show()
+                // এখানে তোমার action লিখো
+            }
         }
 
         dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.8).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
 

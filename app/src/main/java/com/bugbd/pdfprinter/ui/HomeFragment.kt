@@ -1,6 +1,7 @@
 package com.bugbd.pdfprinter.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bugbd.pdfprinter.R
 import com.bugbd.pdfprinter.adapter.BrowsePdf
@@ -38,6 +40,7 @@ import com.bugbd.qrcode.model.LanguageItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -72,7 +75,8 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext())
         binding.pdfRV.setHasFixedSize(true)
         pdfAdapter = PdfAdapter(requireContext()) {
-            Utils.shareFile(requireContext(), it.fileName, it.fileUrl)
+//            Utils.shareFile(requireContext(), it.fileName, it.fileUrl)
+            openPdfInPhone(it.fileUrl.toUri())
         }
         binding.pdfRV.adapter = pdfAdapter
         scannerDB.scannerDao().getScanFileList()
@@ -84,5 +88,20 @@ class HomeFragment : Fragment() {
             }
 
     }
+
+    private fun openPdfInPhone(uri: Uri) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/pdf")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            startActivity(Intent.createChooser(intent, "Open PDF with"))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "No PDF viewer app found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 }

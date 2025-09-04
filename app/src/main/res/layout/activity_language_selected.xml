@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/mainLayout"
-    android:background="@color/background"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
@@ -12,7 +11,7 @@
         android:id="@+id/dashboardActivityToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/background"
+        android:background="@color/topBottomColor"
         android:elevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +42,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/cardBackground"
         app:layout_constraintBottom_toTopOf="@+id/bottomLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -99,7 +97,7 @@
         android:id="@+id/bottomLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         android:paddingVertical="@dimen/space_20"
-        android:background="@color/background"
+        android:background="@color/topBottomColor"
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.AppCompatButton

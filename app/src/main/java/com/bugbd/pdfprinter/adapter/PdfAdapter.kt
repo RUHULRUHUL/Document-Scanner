@@ -52,9 +52,6 @@ class PdfAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         try {
             val item = list[position]
-            holder.binding.shareImg.setOnClickListener {
-                shareEvent(list[position])
-            }
             holder.binding.icon.loadPdfFirstPageFromUri(list[position].fileUrl.toUri(), context)
             val sizeBytes = getPdfFileSizeFromUri(context, list[position].fileUrl.toUri())
             val readableSize = formatFileSize(sizeBytes)
@@ -65,15 +62,7 @@ class PdfAdapter(
             holder.binding.mainLayout.setOnClickListener {
                 val item = list[position]
                 "pdf path: ${item.fileUrl}".logD()
-                context.startActivity(
-                    PdfViewerActivity.launchPdfFromPath(
-                        context = context,
-                        path = item.fileUrl,
-                        pdfTitle = item.fileName,
-                        saveTo = saveTo.ASK_EVERYTIME,
-                        fromAssets = false
-                    )
-                )
+                shareEvent(list[position])
             }
         } catch (e: Exception) {
             e.printStackTrace()
