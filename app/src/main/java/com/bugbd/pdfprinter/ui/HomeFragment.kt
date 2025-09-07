@@ -101,7 +101,7 @@ class HomeFragment : Fragment() {
             options = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE_WITH_FILTER)
                 .setResultFormats(
-                    GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
+                    GmsDocumentScannerOptions.RESULT_FORMAT_PDF
                 )
                 .setGalleryImportAllowed(true)
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
@@ -136,11 +136,13 @@ class HomeFragment : Fragment() {
 
     private fun documentHandleActivityResult(activityResult: ActivityResult) {
         try {
+        "scannerLauncher success".logD()
             val resultCode = activityResult.resultCode
             val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
             if (resultCode == Activity.RESULT_OK && result != null) {
-
+                "resultCode ${Activity.RESULT_OK}".logD()
                 result.pdf?.uri?.path?.let { path ->
+                    "path $path".logD()
                     Utils.customAlert(
                         context = requireContext(),
                         title = "Document Save",

@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             options = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE_WITH_FILTER)
                 .setResultFormats(
-                    GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
+                    GmsDocumentScannerOptions.RESULT_FORMAT_PDF
                 )
                 .setGalleryImportAllowed(true)
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
@@ -243,37 +243,6 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.WRAP_CONTENT
         )
     }
-
-
-
-    private fun handleActivityResult(activityResult: ActivityResult) {
-        val resultCode = activityResult.resultCode
-        val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
-        if (resultCode == Activity.RESULT_OK && result != null) {
-            result.pages.let { pages->
-                val imageUri = pages?.get(0)?.imageUri
-                imageUri?.let {
-                    startTextRecognition(it)
-                }
-            }
-        }
-    }
-
-    private fun startTextRecognition(uri: Uri) {
-            val image = InputImage.fromFilePath(this, uri)
-//            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        val recognizer = TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
-        recognizer.process(image)
-                .addOnSuccessListener { visionText ->
-                    val allText = visionText.text
-                    Log.d("OCR", "Extracted: $allText")
-                }
-                .addOnFailureListener { e ->
-                    Log.e("OCR", "Error: ${e.message}")
-                }
-
-    }
-
 
     private fun documentHandleActivityResult(activityResult: ActivityResult) {
         try {
