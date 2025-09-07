@@ -54,6 +54,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bugbd.pdfprinter.LanguageSelectedActivity
 import com.bugbd.pdfprinter.MainActivity
 import com.bugbd.pdfprinter.adapter.ScanAdapter
+import com.bugbd.pdfprinter.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.qrcode.model.ScanFile
 import com.bugbd.qrcode.model.scanItems
 import com.bugbd.qrcode.model.supportedLanguagesV2
@@ -229,7 +230,17 @@ class HomeFragment : Fragment() {
         binding.pdfRV.setHasFixedSize(true)
         pdfAdapter = PdfAdapter(requireContext()) {
 //            Utils.shareFile(requireContext(), it.fileName, it.fileUrl)
-            openPdfInPhone(it.fileUrl.toUri())
+//            openPdfInPhone(it.fileUrl.toUri())
+
+            MyBottomSheetFragment { selectedOption ->
+                when (selectedOption) {
+//                    "Rename" -> renamePdf(pdfFile)
+//                    "Edit" -> editPdf(pdfFile)
+//                    "Share" -> sharePdf(pdfFile)
+//                    "Print" -> printPdf(pdfFile)
+//                    "Delete" -> deletePdf(pdfFile)
+                }
+            }.show(requireActivity().supportFragmentManager, "PdfOptionsBottomSheet")
         }
         binding.pdfRV.adapter = pdfAdapter
         scannerDB.scannerDao().getScanFileList()

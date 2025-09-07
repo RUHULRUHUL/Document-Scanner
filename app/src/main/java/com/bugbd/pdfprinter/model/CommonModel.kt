@@ -5,3 +5,6 @@ data class OnboardingItem(
     val title: String,
     val description: String
 )
+
+data class PdfOption(val title: String, val iconRes: Int)
+
