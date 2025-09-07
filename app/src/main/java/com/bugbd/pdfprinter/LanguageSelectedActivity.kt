@@ -1,6 +1,7 @@
 package com.bugbd.pdfprinter
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
@@ -21,7 +22,10 @@ import com.bugbd.pdfprinter.adapter.LanguageAdapter
 import com.bugbd.pdfprinter.databinding.ActivityLanguageSelectedBinding
 import com.bugbd.pdfprinter.helper.PermissionHelper
 import com.bugbd.pdfprinter.helper.Utils
+import com.bugbd.pdfprinter.helper.Utils.Companion.dismissDialog
+import com.bugbd.pdfprinter.helper.Utils.Companion.showDialog
 import com.bugbd.pdfprinter.helper.getRequiredPermissions
+import com.bugbd.pdfprinter.helper.intiProgressDialog
 import com.bugbd.qrcode.model.LanguageSupported
 import com.bugbd.qrcode.model.supportedLanguagesV2
 import com.google.mlkit.vision.common.InputImage
@@ -38,6 +42,8 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 class LanguageSelectedActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLanguageSelectedBinding
+
+    private lateinit var progressDialog: Dialog
 
     private lateinit var permissionHelper: PermissionHelper
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
@@ -93,8 +99,7 @@ class LanguageSelectedActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-
-
+        progressDialog = intiProgressDialog(context = this, layoutInflater = layoutInflater)
         val htmlText = """
             <b>Auto-detect:</b> Latin script languages (e.g., English, Spanish, French)<br><br>
             <b>Manual selection required:</b><br>
@@ -163,15 +168,22 @@ class LanguageSelectedActivity : AppCompatActivity() {
     }
 
     private fun imageHandleActivityResult(activityResult: ActivityResult) {
+        progressDialog.showDialog()
         val resultCode = activityResult.resultCode
         val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
         if (resultCode == Activity.RESULT_OK && result != null) {
             result.pages.let { pages->
                 val imageUri = pages?.get(0)?.imageUri
-                imageUri?.let {
-                    startTextRecognition(it)
+                if (imageUri.toString().isNotEmpty()){
+                    imageUri?.let {
+                        startTextRecognition(it)
+                    }
+                }else{
+                    progressDialog.dismissDialog()
                 }
             }
+        }else{
+            progressDialog.dismissDialog()
         }
     }
 
@@ -180,6 +192,7 @@ class LanguageSelectedActivity : AppCompatActivity() {
         val recognizer = TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
+                progressDialog.dismissDialog()
                 val allText = visionText.text
                 val intent = Intent(this, ScanDetailsActivity::class.java)
                 intent.putExtra("scanned_text", allText)  // ✅ টেক্সট পাঠানো হচ্ছে
@@ -187,6 +200,7 @@ class LanguageSelectedActivity : AppCompatActivity() {
                 Log.d("OCR", "Extracted: $allText")
             }
             .addOnFailureListener { e ->
+                progressDialog.dismissDialog()
                 Log.e("OCR", "Error: ${e.message}")
             }
 

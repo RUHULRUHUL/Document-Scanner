@@ -1,16 +1,25 @@
 package com.bugbd.pdfprinter.helper
 
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
 import android.util.Base64
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.Window
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.bugbd.pdfprinter.databinding.CustomProgressDialogBinding
+import com.bugbd.pdfprinter.databinding.CustomProgressDialogLayoutBinding
 import com.bugbd.pdfprinter.helper.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -38,6 +47,38 @@ fun decodeBase64ToImage(base64String: String): Bitmap? {
 fun String.logD(tag: String = "") {
     Log.d("LogPrintPdfPrinter $tag", this)
 }
+
+
+fun saveTextAsPdf(context: Context, fileName: String, text: String) {
+    val pdfDocument = PdfDocument()
+
+    // Page size (A4 এর মতো)
+    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
+    val page = pdfDocument.startPage(pageInfo)
+
+    val canvas = page.canvas
+    val paint = Paint()
+    paint.color = Color.BLACK
+    paint.textSize = 16f
+
+    // লাইন বাই লাইন লিখি
+    val lines = text.split("\n")
+    var y = 50f
+    for (line in lines) {
+        canvas.drawText(line, 40f, y, paint)
+        y += paint.textSize + 10
+    }
+
+    pdfDocument.finishPage(page)
+
+    // ফাইল লোকেশনে লিখি
+    val file = File(context.getExternalFilesDir(null), "$fileName.pdf")
+    pdfDocument.writeTo(FileOutputStream(file))
+    pdfDocument.close()
+
+    Toast.makeText(context, "PDF saved at: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+}
+
 
 
 
@@ -95,3 +136,27 @@ fun String.logD(tag: String = "") {
 //    alertDialog.setCanceledOnTouchOutside(false)
 //    alertDialog.show()
 //}
+
+//progress dialog
+fun intiProgressDialog(context: Context, layoutInflater: LayoutInflater): Dialog {
+    val progressDialog = Dialog(context)
+    progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+    val binding = CustomProgressDialogLayoutBinding.inflate(layoutInflater)
+    progressDialog.setContentView(binding.root)
+    progressDialog.window?.setLayout(120, 120)
+    progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+    progressDialog.setCancelable(false)
+
+    return progressDialog
+}
+fun showProgress(progressDialog: Dialog){
+    if (!progressDialog.isShowing) {
+        progressDialog.show()
+    }
+}
+
+fun hideProgressDialog(progressDialog: Dialog) {
+    if (progressDialog.isShowing) {
+        progressDialog.dismiss()
+    }
+}
