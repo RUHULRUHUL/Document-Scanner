@@ -87,6 +87,9 @@ dependencies {
 
     implementation("com.tbuonomo:dotsindicator:5.1.0")
 
+    implementation ("com.google.android.gms:play-services-code-scanner:16.1.0")
+
+
 //    implementation ("org.apache.poi:poi:5.2.3")
 //    implementation ("org.apache.poi:poi-ooxml:5.2.3")
 
