@@ -16,44 +16,64 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.bugbd.pdfprinter.bottom_sheet.FileSaveOptionSelectBottom
+import com.bugbd.pdfprinter.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfprinter.databinding.ActivityScanDetailsBinding
+import com.bugbd.pdfprinter.helper.Utils
+import com.bugbd.pdfprinter.helper.saveTextAsPdf
+import com.bugbd.pdfprinter.helper.saveTextAsTxt
+import com.bugbd.pdfprinter.local_bd.ScannerDB
+import com.bugbd.qrcode.model.ScanFile
+import kotlinx.coroutines.launch
 
 class ScanDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityScanDetailsBinding
+    private lateinit var scannerDB: ScannerDB
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScanDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        setupToolbar()
         setupEditableText()
         loadScannedText()
-    }
+        scannerDB = ScannerDB.getInstance(this)
+        binding.saveIcon.setOnClickListener {
+            FileSaveOptionSelectBottom { selectedOption ->
+                when (selectedOption) {
+                    "Save as pdf" -> {
+                        val fileName = "document-save-${System.currentTimeMillis()}.pdf"
+                        saveTextAsPdf(context = this,fileName,binding.editTextContent.text.toString()){ downloadUri ->
+                            val scanModel = ScanFile(
+                                fileName = fileName,
+                                fileUrl = downloadUri,
+                                time = Utils.getCurrentTimeMills()
+                            )
+                            lifecycleScope.launch {
+                                scannerDB.scannerDao().insertScanFile(scanModel)
+                            }
+                        }
+                    }
+                    "Save as Txt" -> {
+                        val fileName = "Txt-${System.currentTimeMillis()}.txt"
+                        val uri = saveTextAsTxt(context = this,fileName,binding.editTextContent.text.toString())
+                        val scanModel = ScanFile(
+                            fileName = fileName,
+                            fileUrl = uri.toString(),
+                            time = Utils.getCurrentTimeMills()
+                        )
+                        lifecycleScope.launch {
+                            scannerDB.scannerDao().insertScanFile(scanModel)
+                        }
+                    }
+                    "Save as docx" -> {
 
-    // Toolbar setup with menu
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        binding.toolbar.setNavigationOnClickListener { finish() }
-    }
-
-    // Inflate menu icons
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.action_icon_menu, menu)
-        return true
-    }
-
-    // Handle menu clicks
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_pdf -> exportToPdf()
-            R.id.action_word -> exportToWord()
-            R.id.action_copy -> copyTextToClipboard()
+                    }
+                }
+            }.show(supportFragmentManager, "PdfOptionsBottomSheet")
         }
-        return super.onOptionsItemSelected(item)
     }
 
     // Editable full-screen text

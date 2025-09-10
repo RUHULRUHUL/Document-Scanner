@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -18,6 +19,7 @@ import android.view.Window
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogBinding
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogLayoutBinding
 import com.bugbd.pdfprinter.helper.Response
@@ -49,35 +51,78 @@ fun String.logD(tag: String = "") {
 }
 
 
-fun saveTextAsPdf(context: Context, fileName: String, text: String) {
-    val pdfDocument = PdfDocument()
+fun saveTextAsPdf(context: Context, fileName: String, text: String, onSave: (String) -> Unit) {
+        val pdfDocument = PdfDocument()
 
-    // Page size (A4 এর মতো)
-    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-    val page = pdfDocument.startPage(pageInfo)
+        val pageWidth = 595
+        val pageHeight = 842
+        val margin = 40f
 
-    val canvas = page.canvas
-    val paint = Paint()
-    paint.color = Color.BLACK
-    paint.textSize = 16f
+        val paint = Paint().apply {
+            color = Color.BLACK
+            textSize = 16f
+            typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL) // বাংলা/Unicode ঠিক রাখতে
+        }
 
-    // লাইন বাই লাইন লিখি
-    val lines = text.split("\n")
-    var y = 50f
-    for (line in lines) {
-        canvas.drawText(line, 40f, y, paint)
-        y += paint.textSize + 10
-    }
+        val lineHeight = paint.textSize + 10
+        val maxLinesPerPage = ((pageHeight - margin * 2) / lineHeight).toInt()
 
-    pdfDocument.finishPage(page)
+        val lines = text.split("\n")
+        var lineIndex = 0
+        var pageNumber = 1
 
-    // ফাইল লোকেশনে লিখি
-    val file = File(context.getExternalFilesDir(null), "$fileName.pdf")
-    pdfDocument.writeTo(FileOutputStream(file))
-    pdfDocument.close()
+        while (lineIndex < lines.size) {
+            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            val page = pdfDocument.startPage(pageInfo)
+            val canvas = page.canvas
 
-    Toast.makeText(context, "PDF saved at: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+            var y = margin + paint.textSize
+            var count = 0
+
+            while (count < maxLinesPerPage && lineIndex < lines.size) {
+                canvas.drawText(lines[lineIndex], margin, y, paint)
+                y += lineHeight
+                lineIndex++
+                count++
+            }
+
+            pdfDocument.finishPage(page)
+            pageNumber++
+        }
+
+        // Downloads ফোল্ডারে সেভ করি
+        val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (!downloads.exists()) downloads.mkdirs()
+
+        val file = File(downloads, "$fileName.pdf")
+        pdfDocument.writeTo(FileOutputStream(file))
+        pdfDocument.close()
+    val uri = FileProvider.getUriForFile(
+        context,
+        context.packageName + ".provider",
+        file
+    )
+
+        Toast.makeText(context, "PDF saved at: $uri", Toast.LENGTH_LONG).show()
+    onSave(uri.toString())
 }
+
+fun saveTextAsTxt(context: Context, fileName: String, text: String): Uri {
+    val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    if (!downloads.exists()) downloads.mkdirs()
+    val file = File(downloads, "$fileName.txt")
+    file.writeText(text, Charsets.UTF_8)
+
+    // FileProvider দিয়ে Uri বানাই
+    val uri = FileProvider.getUriForFile(
+        context,
+        context.packageName + ".provider",
+        file
+    )
+    Toast.makeText(context, "PDF saved at: $uri", Toast.LENGTH_LONG).show()
+ return  uri
+}
+
 
 
 
