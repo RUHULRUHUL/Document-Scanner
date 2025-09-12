@@ -24,6 +24,7 @@ data class ScanFile(
     val id: Int = 0,
     val fileName: String="",
     val fileUrl: String="",
+    val filePath: String = "",
     val time:Long = 0
 )
 

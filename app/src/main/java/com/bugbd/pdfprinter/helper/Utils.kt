@@ -47,6 +47,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -59,6 +60,7 @@ import com.bugbd.pdfprinter.databinding.CustomProgressDialogBinding
 import com.bugbd.qrcode.model.LanguageItem
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -712,6 +714,33 @@ class Utils {
             alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
                 .setTextColor(ContextCompat.getColor(context, R.color.black))
 
+        }
+
+        fun showRenameDialog(context: Context,oldFileName:String,onRename: (String) -> Unit) {
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.rename_input_field, null)
+
+            val editText = dialogView.findViewById<TextInputEditText>(R.id.editFileName)
+            val nameWithoutExt = oldFileName.removeSuffix(".pdf")
+            editText.setText(nameWithoutExt)
+
+            val dialog = AlertDialog.Builder(context)
+                .setTitle("Rename File")
+                .setView(dialogView)
+                .setPositiveButton("OK") { d, _ ->
+                    val newName = editText.text.toString().trim()
+                    if (newName.isNotEmpty()) {
+                        onRename(newName)
+                    } else {
+                        Utils.showToast(context, "File name cannot be empty")
+                    }
+                    d.dismiss()
+                }
+                .setNegativeButton("Cancel") { d, _ ->
+                    d.dismiss()
+                }
+                .create()
+
+            dialog.show()
         }
 
         /*fun customAlert(

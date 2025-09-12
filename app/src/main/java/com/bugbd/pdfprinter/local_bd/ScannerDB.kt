@@ -14,7 +14,7 @@ import com.bugbd.qrcode.model.ScanModel
         ScanFile::class,
     WifiNetwork::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class ScannerDB : RoomDatabase() {

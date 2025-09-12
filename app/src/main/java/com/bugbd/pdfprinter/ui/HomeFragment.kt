@@ -56,6 +56,9 @@ import com.bugbd.pdfprinter.MainActivity
 import com.bugbd.pdfprinter.ScanDetailsActivity
 import com.bugbd.pdfprinter.adapter.ScanAdapter
 import com.bugbd.pdfprinter.bottom_sheet.MyBottomSheetFragment
+import com.bugbd.pdfprinter.ext.showToast
+import com.bugbd.pdfprinter.helper.Utils.Companion.showRenameDialog
+import com.bugbd.pdfprinter.helper.renamePdfFile
 import com.bugbd.qrcode.model.ScanFile
 import com.bugbd.qrcode.model.scanItems
 import com.bugbd.qrcode.model.supportedLanguagesV2
@@ -153,7 +156,8 @@ class HomeFragment : Fragment() {
             if (resultCode == Activity.RESULT_OK && result != null) {
                 "resultCode ${Activity.RESULT_OK}".logD()
                 result.pdf?.uri?.path?.let { path ->
-                    "path $path".logD()
+                    "pdf generated path from mlkit $path".logD()
+                    "pdf generate  file uri  ${result.pdf?.uri}".logD()
                     Utils.customAlert(
                         context = requireContext(),
                         title = "Document Save",
@@ -161,6 +165,7 @@ class HomeFragment : Fragment() {
                     ) {
                         try {
                             val originalFile = File(path)
+                            "pdf generated name from mlkit ${originalFile.name}".logD()
                             val newFile = File(originalFile.parentFile, it)
                             val reNameFile = originalFile.renameTo(newFile)
                             if (reNameFile) {
@@ -170,7 +175,8 @@ class HomeFragment : Fragment() {
                                     newFile
                                 )
 
-                                "reNameFile name generate pdf path $externalUri".logD()
+                                "rename this file  ${newFile.path}".logD()
+                                "rename file uri  $externalUri".logD()
                                 val scanModel = ScanFile(
                                     fileName = newFile.name,
                                     fileUrl = externalUri.toString(),
@@ -185,13 +191,15 @@ class HomeFragment : Fragment() {
                                     )
                                 }
                             } else {
+                                "rename not possible".logD()
                                 val externalUri = FileProvider.getUriForFile(
                                     requireContext(),
                                     requireContext().packageName + ".provider",
                                     File(path)
                                 )
-                                "pdf path $externalUri".logD()
+                                "pdf uri $externalUri".logD()
                                 val fileName = externalUri.toString().substringAfterLast("/")
+                                "pdf file name $fileName".logD()
                                 val scanModel = ScanFile(
                                     fileName = fileName,
                                     fileUrl = externalUri.toString(),
@@ -265,7 +273,9 @@ class HomeFragment : Fragment() {
 
             MyBottomSheetFragment { selectedOption ->
                 when (selectedOption) {
-//                    "Rename" -> renamePdf(pdfFile)
+                    "Rename" -> {
+                        renamePdf(it)
+                    }
 //                    "Edit" -> editPdf(pdfFile)
 //                    "Share" -> sharePdf(pdfFile)
 //                    "Print" -> printPdf(pdfFile)
@@ -298,5 +308,44 @@ class HomeFragment : Fragment() {
         }
     }
 
+    fun renamePdf(file: ScanFile) {
+        showRenameDialog(requireContext(),file.fileName){ fileName->
+            try {
+                val newFile = renamePdfFile(requireContext(), file.fileUrl.toUri(), fileName)
+                if (newFile != null) {
+                    val newFileUri = FileProvider.getUriForFile(
+                        requireContext(),
+                        "${requireContext().packageName}.provider",
+                        newFile
+                    )
+
+                    val scanModel = ScanFile(
+                        id = file.id,
+                        fileName = newFile.name,
+                        fileUrl = newFileUri.toString(),
+                        time = Utils.getCurrentTimeMills()
+                    )
+                    lifecycleScope.launch {
+                        scannerDB.scannerDao().updateScanFile(scanModel)
+                        Utils.shareFile(
+                            requireContext(),
+                            newFile.name,
+                            newFileUri.toString()
+                        )
+                    }
+                    "rename file name: ${newFile.name}".logD()
+                    "rename file uri: $newFileUri".logD()
+                    "newFilePath: ${newFile.path}".logD()
+                    "new absolutePath: ${newFile.absolutePath}".logD()
+                } else {
+                    Log.e("Rename", "Rename failed")
+                    Utils.showToast(requireContext(), "Something went wrong : Rename failed")
+                }
+
+            } catch (e: Exception) {
+                Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
+            }
+        }
+    }
 
 }

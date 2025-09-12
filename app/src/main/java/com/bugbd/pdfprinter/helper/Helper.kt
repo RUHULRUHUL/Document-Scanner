@@ -19,6 +19,7 @@ import android.view.Window
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.FileProvider
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogBinding
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogLayoutBinding
@@ -203,5 +204,34 @@ fun showProgress(progressDialog: Dialog){
 fun hideProgressDialog(progressDialog: Dialog) {
     if (progressDialog.isShowing) {
         progressDialog.dismiss()
+    }
+}
+
+
+fun renamePdfFile(context: Context, uri: Uri, newName: String): File? {
+    return if (uri.scheme.equals("file", ignoreCase = true)) {
+        // ✅ Case 1: file://
+        val originalFile = File(uri.path ?: return null)
+        val newFile = File(originalFile.parent, "$newName.pdf")
+
+        if (originalFile.renameTo(newFile)) {
+            newFile
+        } else null
+    } else if (uri.scheme.equals("content", ignoreCase = true)) {
+        // ✅ Case 2: content:// (FileProvider / MediaStore)
+        val contentResolver = context.contentResolver
+        val inputStream = contentResolver.openInputStream(uri) ?: return null
+
+        val newFile = File(context.cacheDir, "$newName.pdf")
+
+        FileOutputStream(newFile).use { output ->
+            inputStream.use { input ->
+                input.copyTo(output)
+            }
+        }
+
+        newFile
+    } else {
+        null
     }
 }

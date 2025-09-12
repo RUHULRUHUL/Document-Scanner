@@ -10,6 +10,9 @@ interface ScannerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertScanFile(scanFile: ScanFile)
 
+    @Update
+    suspend fun updateScanFile(scanFile: ScanFile)
+
     @Query("SELECT * FROM ScanFile order by time desc")
     fun getScanFileList(): LiveData<List<ScanFile>>
 }
