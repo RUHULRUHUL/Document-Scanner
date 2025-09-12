@@ -1,8 +1,10 @@
 package com.bugbd.pdfprinter.helper
 
 import android.app.Dialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -12,6 +14,7 @@ import android.graphics.pdf.PdfDocument
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
+import android.print.PrintManager
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
@@ -233,5 +236,30 @@ fun renamePdfFile(context: Context, uri: Uri, newName: String): File? {
         newFile
     } else {
         null
+    }
+}
+
+fun openPdfInEditor(context: Context, pdfUri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(pdfUri, "application/pdf")
+        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+    }
+    try {
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, "PDF editor app not found", Toast.LENGTH_SHORT).show()
+    }
+}
+
+fun printPdf(context: Context, pdfUri: Uri, jobName: String = "PDF Document") {
+    try {
+        val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+
+        val printAdapter = PdfPrinter(context, pdfUri)
+
+        printManager.print(jobName, printAdapter, null)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Toast.makeText(context, "Print করতে সমস্যা হয়েছে", Toast.LENGTH_SHORT).show()
     }
 }

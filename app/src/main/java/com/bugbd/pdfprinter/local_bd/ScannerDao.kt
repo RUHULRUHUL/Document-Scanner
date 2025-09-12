@@ -13,6 +13,9 @@ interface ScannerDao {
     @Update
     suspend fun updateScanFile(scanFile: ScanFile)
 
+    @Delete
+    suspend fun deleteFile(scanFile: ScanFile)
+
     @Query("SELECT * FROM ScanFile order by time desc")
     fun getScanFileList(): LiveData<List<ScanFile>>
 }

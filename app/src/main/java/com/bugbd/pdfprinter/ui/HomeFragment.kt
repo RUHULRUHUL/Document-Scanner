@@ -2,6 +2,8 @@ package com.bugbd.pdfprinter.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
@@ -57,7 +59,10 @@ import com.bugbd.pdfprinter.ScanDetailsActivity
 import com.bugbd.pdfprinter.adapter.ScanAdapter
 import com.bugbd.pdfprinter.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfprinter.ext.showToast
+import com.bugbd.pdfprinter.helper.PdfPrinter
 import com.bugbd.pdfprinter.helper.Utils.Companion.showRenameDialog
+import com.bugbd.pdfprinter.helper.openPdfInEditor
+import com.bugbd.pdfprinter.helper.printPdf
 import com.bugbd.pdfprinter.helper.renamePdfFile
 import com.bugbd.qrcode.model.ScanFile
 import com.bugbd.qrcode.model.scanItems
@@ -268,18 +273,33 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext())
         binding.pdfRV.setHasFixedSize(true)
         pdfAdapter = PdfAdapter(requireContext()) {
-//            Utils.shareFile(requireContext(), it.fileName, it.fileUrl)
-//            openPdfInPhone(it.fileUrl.toUri())
-
             MyBottomSheetFragment { selectedOption ->
                 when (selectedOption) {
                     "Rename" -> {
                         renamePdf(it)
                     }
-//                    "Edit" -> editPdf(pdfFile)
-//                    "Share" -> sharePdf(pdfFile)
-//                    "Print" -> printPdf(pdfFile)
-//                    "Delete" -> deletePdf(pdfFile)
+                    "Edit" ->{
+                        openPdfInEditor(requireContext(),it.fileUrl.toUri())
+                    }
+                    "Browse" -> {
+                        browsePdfFile(it)
+                    }
+                    "Share" -> {
+                        Utils.shareFile(
+                            requireContext(),
+                            it.fileName,
+                            it.fileUrl
+                        )
+                    }
+                    "Print" -> {
+                        printPdf(requireContext(),it.fileUrl.toUri(),it.fileName)
+                    }
+                    "Delete" -> {
+                        lifecycleScope.launch {
+                            scannerDB.scannerDao().deleteFile(it)
+                            Utils.showToast(requireContext(),"${it.fileName} successfully delete")
+                        }
+                    }
                 }
             }.show(requireActivity().supportFragmentManager, "PdfOptionsBottomSheet")
         }
@@ -294,18 +314,16 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun openPdfInPhone(uri: Uri) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "application/pdf")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
+    private fun browsePdfFile(file: ScanFile) {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(file.fileUrl.toUri(), "application/pdf")
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 
-            startActivity(Intent.createChooser(intent, "Open PDF with"))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(requireContext(), "No PDF viewer app found", Toast.LENGTH_SHORT).show()
-        }
+            try {
+                requireContext().startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(context, "No PDF viewer installed", Toast.LENGTH_SHORT).show()
+            }
     }
 
     fun renamePdf(file: ScanFile) {
@@ -325,6 +343,7 @@ class HomeFragment : Fragment() {
                         fileUrl = newFileUri.toString(),
                         time = Utils.getCurrentTimeMills()
                     )
+                    Utils.showToast(requireContext(),"successfully rename file")
                     lifecycleScope.launch {
                         scannerDB.scannerDao().updateScanFile(scanModel)
                         Utils.shareFile(
