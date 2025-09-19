@@ -8,7 +8,7 @@
         android:title="Documents" />
 
     <item
-        android:id="@+id/QRScanActivity"
+        android:id="@+id/scansDataFragment"
         android:icon="@drawable/baseline_history_24"
         android:title="Scans data" />
 

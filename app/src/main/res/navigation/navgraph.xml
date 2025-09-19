@@ -15,4 +15,8 @@
         android:name="com.bugbd.pdfprinter.ui.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/scansDataFragment"
+        android:name="com.bugbd.pdfprinter.ui.ScansDataFragment"
+        android:label="ScansDataFragment" />
 </navigation>

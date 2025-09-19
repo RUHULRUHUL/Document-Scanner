@@ -144,7 +144,9 @@ class MainActivity : AppCompatActivity() {
                     binding.bottomNavigation.visible()
                     binding.fabRecharge.visible()
                 }
-                R.id.QRScanActivity -> {
+                R.id.scansDataFragment -> {
+                    binding.bottomNavigation.visible()
+                    binding.fabRecharge.visible()
 //                    Utils.showToast(this,"open camera")
 //                    openCamera()
 //                    binding.bottomNavigation.gone()
