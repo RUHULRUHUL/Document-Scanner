@@ -35,8 +35,8 @@ class FileSaveOptionSelectBottom(
         binding.recyclerViewOptions.layoutManager = LinearLayoutManager(context)
 
         val options = listOf(
-            PdfOption("Save as pdf", R.drawable.ic_pdf_img),
-            PdfOption("Save as Txt", R.drawable.baseline_file_copy_24),
+            PdfOption("Save as pdf", R.drawable.ic_file_open_svg),
+            PdfOption("Save as txt", R.drawable.ic_text_file),
         )
 
         val adapter = PdfOptionsAdapter(options) { option ->

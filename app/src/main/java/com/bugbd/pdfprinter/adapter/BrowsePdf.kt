@@ -12,7 +12,6 @@ import com.bugbd.pdfprinter.helper.PdfFileItem
 import com.bugbd.pdfprinter.helper.Utils
 import com.bugbd.pdfprinter.helper.Utils.Companion.loadPdfFirstPageFromUri
 import com.bugbd.pdfprinter.helper.logD
-import com.bugbd.qrcode.model.ScanFile
 import com.rajat.pdfviewer.PdfViewerActivity
 import com.rajat.pdfviewer.util.saveTo
 

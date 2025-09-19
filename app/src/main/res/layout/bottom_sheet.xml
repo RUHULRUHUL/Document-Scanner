@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_margin="10dp"
     android:elevation="20dp"
-    android:background="@drawable/round_gray_radius8dp"
+    android:background="@drawable/bottom_sheet_dialog_bg"
     android:layout_width="match_parent"
     android:layout_height="320dp">
 

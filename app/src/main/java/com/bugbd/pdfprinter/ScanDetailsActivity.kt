@@ -24,7 +24,7 @@ import com.bugbd.pdfprinter.helper.Utils
 import com.bugbd.pdfprinter.helper.saveTextAsPdf
 import com.bugbd.pdfprinter.helper.saveTextAsTxt
 import com.bugbd.pdfprinter.local_bd.ScannerDB
-import com.bugbd.qrcode.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanFile
 import kotlinx.coroutines.launch
 
 class ScanDetailsActivity : AppCompatActivity() {
@@ -56,7 +56,7 @@ class ScanDetailsActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    "Save as Txt" -> {
+                    "Save as txt" -> {
                         val fileName = "Txt-${System.currentTimeMillis()}.txt"
                         val uri = saveTextAsTxt(context = this,fileName,binding.editTextContent.text.toString())
                         val scanModel = ScanFile(

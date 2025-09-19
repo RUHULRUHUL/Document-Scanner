@@ -17,7 +17,7 @@ import com.bugbd.pdfprinter.helper.Utils.Companion.formatFileSize
 import com.bugbd.pdfprinter.helper.Utils.Companion.getPdfFileSizeFromUri
 import com.bugbd.pdfprinter.helper.Utils.Companion.loadPdfFirstPageFromUri
 import com.bugbd.pdfprinter.helper.logD
-import com.bugbd.qrcode.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanFile
 import com.rajat.pdfviewer.PdfViewerActivity
 import com.rajat.pdfviewer.util.saveTo
 import java.io.File

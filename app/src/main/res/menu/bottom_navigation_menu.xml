@@ -9,7 +9,8 @@
 
     <item
         android:id="@+id/QRScanActivity"
-        android:title="" />
+        android:icon="@drawable/baseline_history_24"
+        android:title="Scans data" />
 
     <item
         android:id="@+id/settingsFragment"

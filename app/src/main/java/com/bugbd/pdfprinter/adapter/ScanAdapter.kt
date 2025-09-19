@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bugbd.pdfprinter.databinding.ScanItemHorizontalBinding
-import com.bugbd.qrcode.model.ScanItem
+import com.bugbd.pdfprinter.model.ScanItem
 
 class ScanAdapter(
     val items: List<ScanItem>,

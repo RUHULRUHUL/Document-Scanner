@@ -26,8 +26,8 @@ import com.bugbd.pdfprinter.helper.Utils.Companion.dismissDialog
 import com.bugbd.pdfprinter.helper.Utils.Companion.showDialog
 import com.bugbd.pdfprinter.helper.getRequiredPermissions
 import com.bugbd.pdfprinter.helper.intiProgressDialog
-import com.bugbd.qrcode.model.LanguageSupported
-import com.bugbd.qrcode.model.supportedLanguagesV2
+import com.bugbd.pdfprinter.model.LanguageSupported
+import com.bugbd.pdfprinter.model.supportedLanguagesV2
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning

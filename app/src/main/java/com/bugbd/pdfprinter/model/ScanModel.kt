@@ -1,4 +1,4 @@
-package com.bugbd.qrcode.model
+package com.bugbd.pdfprinter.model
 
 import android.icu.text.CaseMap.Title
 import android.os.Parcelable
@@ -122,6 +122,6 @@ data class ScanItem(
 val scanItems = listOf(
     ScanItem(icon = R.drawable.ic_pdf_img,"Image to pdf"),
     ScanItem(icon = R.drawable.outline_document_scanner_24,"Document to text"),
-    ScanItem(icon = R.drawable.ic_doc_scanner_white,"ID card scan"),
+    ScanItem(icon = R.drawable.identity,"ID card scan"),
     ScanItem(icon = R.drawable.baseline_qr_code_scanner_24,"Bar code scan"),
 )

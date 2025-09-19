@@ -64,9 +64,8 @@ import com.bugbd.pdfprinter.helper.Utils.Companion.showRenameDialog
 import com.bugbd.pdfprinter.helper.openPdfInEditor
 import com.bugbd.pdfprinter.helper.printPdf
 import com.bugbd.pdfprinter.helper.renamePdfFile
-import com.bugbd.qrcode.model.ScanFile
-import com.bugbd.qrcode.model.scanItems
-import com.bugbd.qrcode.model.supportedLanguagesV2
+import com.bugbd.pdfprinter.model.ScanFile
+import com.bugbd.pdfprinter.model.scanItems
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning

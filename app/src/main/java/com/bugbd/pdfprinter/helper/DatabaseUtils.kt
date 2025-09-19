@@ -5,8 +5,7 @@ import androidx.lifecycle.LiveData
 import com.bugbd.pdfprinter.helper.WifiNetwork
 import com.bugbd.pdfprinter.local_bd.ScannerDB
 import com.bugbd.pdfprinter.local_bd.ScannerDao
-import com.bugbd.qrcode.model.ScanFile
-import com.bugbd.qrcode.model.ScanModel
+import com.bugbd.pdfprinter.model.ScanFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

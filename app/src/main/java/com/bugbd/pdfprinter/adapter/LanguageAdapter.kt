@@ -6,8 +6,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bugbd.pdfprinter.R
 import com.bugbd.pdfprinter.databinding.LanguageRowBinding
+import com.bugbd.pdfprinter.model.LanguageSupported
 import com.bugbd.qrcode.model.LanguageItem
-import com.bugbd.qrcode.model.LanguageSupported
 
 class LanguageAdapter(
     private val list: List<LanguageSupported>,

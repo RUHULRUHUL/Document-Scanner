@@ -43,7 +43,7 @@ import com.bugbd.pdfprinter.helper.getPdfs
 import com.bugbd.pdfprinter.helper.getRequiredPermissions
 import com.bugbd.pdfprinter.helper.logD
 import com.bugbd.pdfprinter.local_bd.ScannerDB
-import com.bugbd.qrcode.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanFile
 import com.google.android.material.card.MaterialCardView
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions

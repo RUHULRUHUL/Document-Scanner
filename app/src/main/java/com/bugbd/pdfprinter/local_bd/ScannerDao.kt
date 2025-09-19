@@ -2,7 +2,7 @@ package com.bugbd.pdfprinter.local_bd
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.bugbd.qrcode.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanFile
 
 @Dao
 interface ScannerDao {

@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.bugbd.pdfprinter.helper.WifiNetwork
-import com.bugbd.qrcode.model.ScanFile
-import com.bugbd.qrcode.model.ScanModel
+import com.bugbd.pdfprinter.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanModel
 
 @Database(
     entities = [
