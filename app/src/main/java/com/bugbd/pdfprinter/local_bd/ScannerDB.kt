@@ -6,15 +6,17 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.bugbd.pdfprinter.helper.WifiNetwork
 import com.bugbd.pdfprinter.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanHistory
 import com.bugbd.pdfprinter.model.ScanModel
 
 @Database(
     entities = [
         ScanModel::class,
         ScanFile::class,
-    WifiNetwork::class
+    WifiNetwork::class,
+        ScanHistory::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class ScannerDB : RoomDatabase() {

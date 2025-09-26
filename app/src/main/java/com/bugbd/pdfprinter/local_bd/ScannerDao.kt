@@ -3,6 +3,7 @@ package com.bugbd.pdfprinter.local_bd
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.bugbd.pdfprinter.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanHistory
 
 @Dao
 interface ScannerDao {
@@ -18,4 +19,10 @@ interface ScannerDao {
 
     @Query("SELECT * FROM ScanFile order by time desc")
     fun getScanFileList(): LiveData<List<ScanFile>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertScanHistory(history: ScanHistory)
+
+    @Query("select * from ScanHistory order by id desc")
+    fun getAllScanHistory(): LiveData<List<ScanHistory>>
 }

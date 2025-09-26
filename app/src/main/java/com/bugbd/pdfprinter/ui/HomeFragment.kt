@@ -61,10 +61,13 @@ import com.bugbd.pdfprinter.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfprinter.ext.showToast
 import com.bugbd.pdfprinter.helper.PdfPrinter
 import com.bugbd.pdfprinter.helper.Utils.Companion.showRenameDialog
+import com.bugbd.pdfprinter.helper.getBarCodeFormat
+import com.bugbd.pdfprinter.helper.getBarcodeResult
 import com.bugbd.pdfprinter.helper.openPdfInEditor
 import com.bugbd.pdfprinter.helper.printPdf
 import com.bugbd.pdfprinter.helper.renamePdfFile
 import com.bugbd.pdfprinter.model.ScanFile
+import com.bugbd.pdfprinter.model.ScanHistory
 import com.bugbd.pdfprinter.model.scanItems
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
@@ -247,12 +250,16 @@ class HomeFragment : Fragment() {
                     val barCodeScanner = GmsBarcodeScanning.getClient(requireContext(), barCodeOptions)
                     barCodeScanner.startScan()
                         .addOnSuccessListener { barcode ->
-                            // Task completed successfully
-                            val allText = barcode.rawValue
-                            val intent = Intent(requireContext(), ScanDetailsActivity::class.java)
-                            intent.putExtra("scanned_text", allText)  // ✅ টেক্সট পাঠানো হচ্ছে
-                            startActivity(intent)
-                            Log.d("barcodes", "Extracted: $allText")
+                            lifecycleScope.launch {
+                                val formatType = getBarCodeFormat(type = barcode.valueType,barcode)
+                                val scanData = getBarcodeResult(type = barcode.valueType,barcode)
+                                val scanHistory = ScanHistory(0, formatType, scanData, Utils.getCurrentTimeMills())
+                                scannerDB.scannerDao().insertScanHistory(scanHistory)
+                                val intent = Intent(requireContext(), ScanDetailsActivity::class.java)
+                                intent.putExtra("scanned_text", scanData)
+                                startActivity(intent)
+                                Log.d("barcodes", "Extracted: $scanData")
+                            }
                         }
                         .addOnCanceledListener {
                             // Task canceled

@@ -27,6 +27,7 @@ import androidx.core.content.FileProvider
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogBinding
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogLayoutBinding
 import com.bugbd.pdfprinter.helper.Response
+import com.google.mlkit.vision.barcode.common.Barcode
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
@@ -126,6 +127,118 @@ fun saveTextAsTxt(context: Context, fileName: String, text: String): Uri {
     Toast.makeText(context, "PDF saved at: $uri", Toast.LENGTH_LONG).show()
  return  uri
 }
+
+fun getBarCodeFormat(type: Int, barcode: Barcode): String {
+    // Types that often contain plain text but you want to return barcode format instead:
+    val textLikeTypes = setOf(
+        Barcode.TYPE_TEXT,
+        Barcode.TYPE_PRODUCT,
+        Barcode.TYPE_ISBN
+    )
+
+    if (type in textLikeTypes) {
+        // Return format name instead of "Text" or "Product" etc
+        return when (barcode.format) {
+            Barcode.FORMAT_QR_CODE -> "QR_CODE"
+            Barcode.FORMAT_CODE_128 -> "CODE_128"
+            Barcode.FORMAT_CODE_39 -> "CODE_39"
+            Barcode.FORMAT_CODE_93 -> "CODE_93"
+            Barcode.FORMAT_CODABAR -> "CODABAR"
+            Barcode.FORMAT_DATA_MATRIX -> "DATA_MATRIX"
+            Barcode.FORMAT_EAN_13 -> "EAN_13"
+            Barcode.FORMAT_EAN_8 -> "EAN_8"
+            Barcode.FORMAT_ITF -> "ITF"
+            Barcode.FORMAT_PDF417 -> "PDF417"
+            Barcode.FORMAT_AZTEC -> "AZTEC"
+            else -> "UNKNOWN_FORMAT"
+        }
+    }
+
+    return when (type) {
+        Barcode.TYPE_CONTACT_INFO -> "Contact Info"
+        Barcode.TYPE_EMAIL -> "Email"
+        Barcode.TYPE_PHONE -> "Phone"
+        Barcode.TYPE_SMS -> "SMS"
+        Barcode.TYPE_URL -> "URL"
+        Barcode.TYPE_GEO -> "Geo Location"
+        Barcode.TYPE_CALENDAR_EVENT -> "Calendar Event"
+        Barcode.TYPE_DRIVER_LICENSE -> "Driver License"
+        else -> {
+            // If unknown type and not textLike, fallback to format name:
+            when (barcode.format) {
+                Barcode.FORMAT_QR_CODE -> "QR_CODE"
+                Barcode.FORMAT_CODE_128 -> "CODE_128"
+                Barcode.FORMAT_CODE_39 -> "CODE_39"
+                Barcode.FORMAT_CODE_93 -> "CODE_93"
+                Barcode.FORMAT_CODABAR -> "CODABAR"
+                Barcode.FORMAT_DATA_MATRIX -> "DATA_MATRIX"
+                Barcode.FORMAT_EAN_13 -> "EAN_13"
+                Barcode.FORMAT_EAN_8 -> "EAN_8"
+                Barcode.FORMAT_ITF -> "ITF"
+                Barcode.FORMAT_PDF417 -> "PDF417"
+                Barcode.FORMAT_AZTEC -> "AZTEC"
+                else -> "UNKNOWN_FORMAT"
+            }
+        }
+    }
+}
+fun getBarcodeResult(type: Int, barcode: Barcode): String {
+    return when (type) {
+        Barcode.TYPE_CONTACT_INFO -> {
+            val contact = barcode.contactInfo
+            val name = contact?.name?.formattedName ?: ""
+            val organization = contact?.organization ?: ""
+            val phones = contact?.phones?.joinToString { it.number ?: "" } ?: ""
+            val emails = contact?.emails?.joinToString { it.address ?: "" } ?: ""
+            "Contact: $name, Org: $organization, Phones: $phones, Emails: $emails"
+        }
+        Barcode.TYPE_EMAIL -> {
+            val email = barcode.email
+            "Email: ${email?.address ?: ""}, Subject: ${email?.subject ?: ""}, Body: ${email?.body ?: ""}"
+        }
+        Barcode.TYPE_ISBN -> {
+            "ISBN: ${barcode.rawValue ?: ""}"
+        }
+        Barcode.TYPE_PHONE -> {
+            val phone = barcode.phone
+            "Phone: ${phone?.number ?: ""}, Type: ${phone?.type ?: ""}"
+        }
+        Barcode.TYPE_PRODUCT -> {
+            "Product Code: ${barcode.rawValue ?: ""}"
+        }
+        Barcode.TYPE_SMS -> {
+            val sms = barcode.sms
+            "SMS to: ${sms?.phoneNumber ?: ""}, Message: ${sms?.message ?: ""}"
+        }
+        Barcode.TYPE_TEXT -> {
+            "Text: ${barcode.rawValue ?: ""}"
+        }
+        Barcode.TYPE_URL -> {
+            val url = barcode.url
+            "URL: ${url?.url ?: ""}, Title: ${url?.title ?: ""}"
+        }
+        Barcode.TYPE_WIFI -> {
+            val wifi = barcode.wifi
+            "Wi-Fi SSID: ${wifi?.ssid ?: ""}, Password: ${wifi?.password ?: ""}, Encryption: ${wifi?.encryptionType ?: ""}"
+        }
+        Barcode.TYPE_GEO -> {
+            val geo = barcode.geoPoint
+            "Location: ${geo?.lat ?: ""}, ${geo?.lng ?: ""}"
+        }
+        Barcode.TYPE_CALENDAR_EVENT -> {
+            val event = barcode.calendarEvent
+            "Event: ${event?.summary ?: ""}, Start: ${event?.start?.rawValue ?: ""}, End: ${event?.end?.rawValue ?: ""}"
+        }
+        Barcode.TYPE_DRIVER_LICENSE -> {
+            val dl = barcode.driverLicense
+            "DL Name: ${dl?.firstName ?: ""} ${dl?.lastName ?: ""}, Number: ${dl?.licenseNumber ?: ""}"
+        }
+        else -> {
+            "Other type: ${barcode.rawValue ?: ""}"
+        }
+    }
+}
+
 
 
 
