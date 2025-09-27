@@ -28,9 +28,21 @@ class OnboardingActivity : AppCompatActivity() {
         preferenceManager = PreferenceManager(this)
         setDarkLightThem(preferenceManager.get("them", "", String::class))
         val items = listOf(
-            OnboardingItem(R.drawable.ic_document_scan, "Welcome", "This is your new scanner app."),
-            OnboardingItem(R.drawable.ic_document_scan, "Scan Fast", "Quickly scan QR & Barcodes."),
-            OnboardingItem(R.drawable.ic_document_scan, "Stay Organized", "Save and manage scans easily.")
+            OnboardingItem(
+                R.drawable.ic_pdf_scanner,
+                "Multiple Image to PDF",
+                "Convert multiple images into PDF file"
+            ),
+            OnboardingItem(
+                R.drawable.ic_ocr_scanner,
+                "Text Recognizer OCR",
+                "Extract text from any language using powerful OCR technology."
+            ),
+            OnboardingItem(
+                R.drawable.id_card_scanner,
+                "Smart Card Scanner",
+                "Quickly scan and read smart cards for faster access."
+            )
         )
 
         adapter = OnboardingAdapter(items)

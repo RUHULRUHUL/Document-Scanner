@@ -89,4 +89,5 @@
     <string name="dashbord">Dashbord</string>
     <string name="show_all">show all</string>
     <string name="start_scan">Start Scan</string>
+    <string name="pdf">PDF</string>
 </resources>

@@ -35,7 +35,7 @@ class MyBottomSheetFragment(
         binding.recyclerViewOptions.layoutManager = LinearLayoutManager(context)
 
         val options = listOf(
-            PdfOption("Browse", R.drawable.ic_file_open_svg),
+            PdfOption("View as pdf", R.drawable.ic_file_open_svg),
             PdfOption("Rename", R.drawable.ic_rename_file),
             PdfOption("Edit", R.drawable.ic_file_edit_svg),
             PdfOption("Share", R.drawable.ic_share_svg),

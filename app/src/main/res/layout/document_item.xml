@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="5dp"
             android:background="@drawable/pdf_label_tag_bg"
-            tools:text="PDF"
+            android:text="@string/pdf"
             android:textSize="11sp"
             android:textColor="@color/white"
             android:textStyle="normal"

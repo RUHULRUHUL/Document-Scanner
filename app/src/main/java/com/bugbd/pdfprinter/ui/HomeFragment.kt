@@ -287,7 +287,7 @@ class HomeFragment : Fragment() {
                     "Edit" ->{
                         openPdfInEditor(requireContext(),it.fileUrl.toUri())
                     }
-                    "Browse" -> {
+                    "View as pdf" -> {
                         browsePdfFile(it)
                     }
                     "Share" -> {
