@@ -1,5 +1,6 @@
 package com.bugbd.pdfprinter.ui
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -33,6 +34,7 @@ class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
     private lateinit var preferenceManager: PreferenceManager
     private lateinit var scannerDB: ScannerDB
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,6 +43,10 @@ class SettingsFragment : Fragment() {
         binding = FragmentSettingsBinding.inflate(layoutInflater)
         preferenceManager = PreferenceManager(requireContext())
         scannerDB = ScannerDB.getInstance(requireContext())
+
+        if (isAdded){
+            binding.appbar.tvTitle.text = requireContext().getString(R.string.settings)
+        }
 
         clickEvent()
 

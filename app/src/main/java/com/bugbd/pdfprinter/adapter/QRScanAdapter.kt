@@ -39,7 +39,7 @@ class QRScanAdapter(
             holder.binding.mainLayout.setOnClickListener {
                 val scanHistory = list[position]
                 val intent = Intent(context, ScanDetailsActivity::class.java)
-                intent.putExtra("scanned_text", scanHistory)
+                intent.putExtra("scanned_text", scanHistory.description)
                 context.startActivity(intent)
             }
         } catch (e: Exception) {

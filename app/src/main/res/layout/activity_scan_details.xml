@@ -18,6 +18,7 @@
         app:titleTextColor="@color/background">
 
             <ImageView
+                android:id="@+id/icBackImg"
                 android:layout_marginEnd="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

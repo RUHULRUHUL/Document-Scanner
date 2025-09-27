@@ -115,13 +115,14 @@ val supportedLanguagesV2 = listOf(
 )
 
 data class ScanItem(
+    val id: Int = 0,
     val icon: Int = 0,
     val title: String=""
     )
 
 val scanItems = listOf(
-    ScanItem(icon = R.drawable.ic_pdf_icon_svg,"PDF Maker"),
-    ScanItem(icon = R.drawable.ic_ocr_file,"OCR"),
-    ScanItem(icon = R.drawable.ic_id_card_svg,"Card Scan"),
-    ScanItem(icon = R.drawable.ic_qr_scan_svg,"QR Scan"),
+    ScanItem(id = 0, icon = R.drawable.ic_pdf_icon_svg,"PDF Maker"),
+    ScanItem(id = 1,icon = R.drawable.ic_ocr_file,"OCR"),
+    ScanItem(id = 2,icon = R.drawable.ic_id_card_svg,"Card Scan"),
+    ScanItem(id = 3,icon = R.drawable.ic_qr_scan_svg,"QR Scan"),
 )

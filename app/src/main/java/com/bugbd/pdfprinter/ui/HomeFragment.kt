@@ -236,17 +236,17 @@ class HomeFragment : Fragment() {
 
     private fun scanAdapter() {
         val adapter = ScanAdapter(scanItems, requireContext()) { selectedItem ->
-            when (selectedItem.title) {
-                "Image to pdf" -> {
+            when (selectedItem.id) {
+                0 -> {
                     openCamera()
                 }
-                "Document to text" -> {
+                1 -> {
                     startActivity(Intent(requireContext(), LanguageSelectedActivity::class.java))
                 }
-                "ID card scan" -> {
+                2 -> {
                     openCamera()
                 }
-                "Bar code scan" -> {
+                3 -> {
                     val barCodeScanner = GmsBarcodeScanning.getClient(requireContext(), barCodeOptions)
                     barCodeScanner.startScan()
                         .addOnSuccessListener { barcode ->

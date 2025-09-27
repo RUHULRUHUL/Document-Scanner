@@ -74,6 +74,9 @@ class ScanDetailsActivity : AppCompatActivity() {
                 }
             }.show(supportFragmentManager, "PdfOptionsBottomSheet")
         }
+        binding.icBackImg.setOnClickListener {
+            finish()
+        }
     }
 
     // Editable full-screen text

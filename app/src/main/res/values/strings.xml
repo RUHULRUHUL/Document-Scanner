@@ -54,6 +54,7 @@
     <string name="qr_bar_code_generate">QR/Bar Code Generate</string>
     <string name="qr_code">QR Code</string>
     <string name="bar_code">Bar Code</string>
+    <string name="qr_scans">Scans history</string>
     <string name="my_code">My Code</string>
     <string name="history">History</string>
     <string name="privacy_policy">Privacy Policy</string>

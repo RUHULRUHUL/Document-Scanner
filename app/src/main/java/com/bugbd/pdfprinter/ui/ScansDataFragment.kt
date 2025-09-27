@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bugbd.pdfprinter.R
 import com.bugbd.pdfprinter.adapter.QRScanAdapter
 import com.bugbd.pdfprinter.databinding.FragmentScansDataBinding
 import com.bugbd.pdfprinter.local_bd.PreferenceManager
@@ -23,6 +24,11 @@ class ScansDataFragment : Fragment() {
         binding = FragmentScansDataBinding.inflate(layoutInflater)
         preferenceManager = PreferenceManager(requireContext())
         scannerDB = ScannerDB.getInstance(requireContext())
+
+        if (isAdded){
+            binding.appbar.tvTitle.text = requireContext().getString(R.string.qr_scans)
+        }
+
         getScanResult()
         clickEvent()
 
