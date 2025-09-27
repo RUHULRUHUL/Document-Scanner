@@ -142,33 +142,21 @@ class MainActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.homeFragment -> {
                     binding.bottomNavigation.visible()
-                    binding.fabRecharge.visible()
                 }
                 R.id.scansDataFragment -> {
                     binding.bottomNavigation.visible()
-                    binding.fabRecharge.visible()
-//                    Utils.showToast(this,"open camera")
-//                    openCamera()
-//                    binding.bottomNavigation.gone()
-//                    binding.fabRecharge.gone()
                 }
 
                 R.id.settingsFragment -> {
                     binding.bottomNavigation.visible()
-                    binding.fabRecharge.visible()
                 }
 
                 else -> {
                     binding.bottomNavigation.gone()
-                    binding.fabRecharge.gone()
                 }
 
 
             }
-        }
-
-        binding.fabRecharge.setOnClickListener {
-            openCamera()
         }
         setDarkLightThem(preferenceManager.get("them", "", String::class))
     }

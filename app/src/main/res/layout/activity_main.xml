@@ -42,35 +42,4 @@
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_menu" />
 
-    <!-- Ensure this is placed at the end so it renders above -->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/roundedContainer"
-        android:layout_width="@dimen/space_50"
-        android:layout_height="@dimen/space_50"
-        android:background="@drawable/full_round_shape"
-        android:elevation="5dp"
-        android:visibility="gone"
-        android:translationZ="95dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
-        app:layout_constraintTop_toTopOf="@+id/bottomNavigation"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:id="@+id/fabRecharge"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_scanner"
-            android:scaleType="centerInside"
-            android:padding="5dp"
-            android:visibility="visible"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

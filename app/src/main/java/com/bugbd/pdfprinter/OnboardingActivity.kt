@@ -22,9 +22,9 @@ class OnboardingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val items = listOf(
-            OnboardingItem(R.drawable.ic_document, "Welcome", "This is your new scanner app."),
-            OnboardingItem(R.drawable.ic_document, "Scan Fast", "Quickly scan QR & Barcodes."),
-            OnboardingItem(R.drawable.ic_document, "Stay Organized", "Save and manage scans easily.")
+            OnboardingItem(R.drawable.ic_document_scan, "Welcome", "This is your new scanner app."),
+            OnboardingItem(R.drawable.ic_document_scan, "Scan Fast", "Quickly scan QR & Barcodes."),
+            OnboardingItem(R.drawable.ic_document_scan, "Stay Organized", "Save and manage scans easily.")
         )
 
         adapter = OnboardingAdapter(items)
