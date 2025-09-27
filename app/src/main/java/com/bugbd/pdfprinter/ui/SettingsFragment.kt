@@ -45,7 +45,18 @@ class SettingsFragment : Fragment() {
         scannerDB = ScannerDB.getInstance(requireContext())
 
         if (isAdded){
-            binding.appbar.tvTitle.text = requireContext().getString(R.string.settings)
+            try {
+                binding.appbar.tvTitle.text = requireContext().getString(R.string.settings)
+                val context = requireContext()
+                val packageManager = context.packageManager
+                val packageInfo = packageManager.getPackageInfo(context.packageName, 0)
+                val appName = packageManager.getApplicationLabel(context.applicationInfo).toString()
+                val versionName = packageInfo.versionName
+                binding.appNameText.text = appName
+                binding.appVersionText.text = "Version - $versionName"
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
         }
 
         clickEvent()

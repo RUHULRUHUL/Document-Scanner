@@ -8,6 +8,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bugbd.pdfprinter.adapter.OnboardingAdapter
 import com.bugbd.pdfprinter.databinding.ActivityOnboardingBinding
+import com.bugbd.pdfprinter.ext.setDarkLightThem
+import com.bugbd.pdfprinter.local_bd.PreferenceManager
 import com.bugbd.pdfprinter.model.OnboardingItem
 import kotlin.math.abs
 
@@ -15,12 +17,16 @@ class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
     private lateinit var adapter: OnboardingAdapter
+    private lateinit var preferenceManager: PreferenceManager
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        preferenceManager = PreferenceManager(this)
+        setDarkLightThem(preferenceManager.get("them", "", String::class))
         val items = listOf(
             OnboardingItem(R.drawable.ic_document_scan, "Welcome", "This is your new scanner app."),
             OnboardingItem(R.drawable.ic_document_scan, "Scan Fast", "Quickly scan QR & Barcodes."),
