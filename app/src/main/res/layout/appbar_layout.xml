@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Documents"
+        android:text="@string/documents"
         android:textColor="@color/textColor"
         android:textSize="20sp"
         android:textStyle="bold"

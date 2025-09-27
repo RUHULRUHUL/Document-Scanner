@@ -12,7 +12,7 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:text="Select an item"
+        android:text="@string/select_an_item"
         android:textSize="20sp"
         android:textStyle="italic"
         android:textAlignment="center"
@@ -38,7 +38,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Document to Text(OCR)"
+            android:text="@string/document_to_text_ocr"
             android:textSize="14sp"
             android:layout_marginStart="10dp"
             android:textStyle="italic"
@@ -64,7 +64,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Image to PDF Converter"
+            android:text="@string/image_to_pdf_converter"
             android:layout_marginStart="10dp"
             android:textSize="14sp"
             android:textStyle="italic"
@@ -89,7 +89,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Id card scan"
+            android:text="@string/id_card_scan"
             android:layout_marginStart="10dp"
             android:textSize="14sp"
             android:textStyle="italic"

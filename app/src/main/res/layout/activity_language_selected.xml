@@ -31,7 +31,7 @@
             android:paddingHorizontal="5dp"
             android:textColor="@color/textColor"
             android:textSize="20sp"
-            android:text="Supported language list" />
+            android:text="@string/document_to_text_ocr" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
                 android:paddingHorizontal="20dp"
-                android:text="show all"
+                android:text="@string/show_all"
                 android:visibility="gone"
                 android:textColor="@color/textColor"
                 android:textSize="14sp"
@@ -108,7 +108,7 @@
             android:drawablePadding="@dimen/space_20"
             android:paddingStart="@dimen/space_10"
             android:paddingVertical="2dp"
-            android:text="Go to scan"
+            android:text="@string/start_scan"
             android:textAllCaps="false"
             android:background="@drawable/round_red_bg"
             android:layout_height="wrap_content"/>

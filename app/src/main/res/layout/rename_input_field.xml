@@ -10,7 +10,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter file name"
+        android:hint="@string/enter_file_name"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
         app:boxBackgroundMode="outline"
         app:boxCornerRadiusTopStart="16dp"
