@@ -81,6 +81,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.Objects
+import androidx.core.graphics.createBitmap
 
 class Utils {
     companion object {
@@ -1249,41 +1250,48 @@ class Utils {
             }
         }*/
 
-        fun renderFirstPageFromPdfUri(context: Context, pdfUri: Uri): Bitmap? {
-            Constants.totalPdfCount = 0
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val contentResolver = context.contentResolver
-                val fileDescriptor = contentResolver.openFileDescriptor(pdfUri, "r") ?: return null
-                val renderer = PdfRenderer(fileDescriptor)
-                val bitmap = if (renderer.pageCount > 0) {
-                    val  totalPage = renderer.pageCount
-                    val page = renderer.openPage(0)
-                    Constants.totalPdfCount = totalPage
-                    val bmp = Bitmap.createBitmap(
-                        page.width,
-                        page.height,
-                        Bitmap.Config.ARGB_8888
-                    )
-                    page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                    page.close()
-                    bmp
-                } else null
+        fun renderFirstPageFromPdfUri(
+            context: Context,
+            pdfUri: Uri,
+            onResult: (bitmap: Bitmap?, totalPages: Int) -> Unit
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                var bitmap: Bitmap? = null
+                var totalPages = 0
 
-                renderer.close()
-                fileDescriptor.close()
-                bitmap
-            } else null
-        }
-        fun ImageView.loadPdfFirstPageFromUri(uri: Uri, context: Context) {
-            val placeholderDrawable =
-            renderFirstPageFromPdfUri(context, uri)?.let {
-                this.load(it) {
-                    transformations(RoundedCornersTransformation(16f))
-                    placeholder(ContextCompat.getDrawable(context, R.drawable.baseline_file_copy_24))
-                    error(ContextCompat.getDrawable(context, R.drawable.baseline_file_copy_24))
+                val contentResolver = context.contentResolver
+                val fileDescriptor = contentResolver.openFileDescriptor(pdfUri, "r")
+                if (fileDescriptor != null) {
+                    val renderer = PdfRenderer(fileDescriptor)
+                    totalPages = renderer.pageCount
+
+                    if (totalPages > 0) {
+                        val page = renderer.openPage(0)
+                        bitmap = createBitmap(page.width, page.height)
+                        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                        page.close()
+                    }
+
+                    renderer.close()
+                    fileDescriptor.close()
+                }
+
+                // Switch to Main thread to return the result
+                withContext(Dispatchers.Main) {
+                    onResult(bitmap, totalPages)
                 }
             }
         }
+//        fun ImageView.loadPdfFirstPageFromUri(uri: Uri, context: Context) {
+//            val placeholderDrawable =
+//            renderFirstPageFromPdfUri(context, uri)?.let {
+//                this.load(it) {
+//                    transformations(RoundedCornersTransformation(16f))
+//                    placeholder(ContextCompat.getDrawable(context, R.drawable.baseline_file_copy_24))
+//                    error(ContextCompat.getDrawable(context, R.drawable.baseline_file_copy_24))
+//                }
+//            }
+//        }
 
         fun formatFileSize(bytes: Long): String {
             val kb = bytes / 1024.0

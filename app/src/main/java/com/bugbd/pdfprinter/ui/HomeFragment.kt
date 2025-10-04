@@ -313,8 +313,7 @@ class HomeFragment : Fragment() {
         scannerDB.scannerDao().getScanFileList()
             .observe(requireActivity()) {
                 if (it.isNotEmpty()) {
-                    pdfAdapter.addItems(it)
-                } else {
+                    pdfAdapter.updateItems(it)
                 }
             }
 
