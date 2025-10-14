@@ -20,11 +20,13 @@
 
     <TextView
         android:text="@string/start_scanning_and_your_scan_data_will_appear_here"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:paddingVertical="5dp"
         android:textAlignment="center"
         android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp" android:layout_height="wrap_content" android:layout_width="match_parent"/>
+        android:layout_marginTop="4dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
