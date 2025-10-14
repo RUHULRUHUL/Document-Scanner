@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.bugbd.pdfprinter.adapter.OnboardingAdapter
 import com.bugbd.pdfprinter.databinding.ActivityOnboardingBinding
 import com.bugbd.pdfprinter.ext.setDarkLightThem
+import com.bugbd.pdfprinter.helper.Constants
 import com.bugbd.pdfprinter.local_bd.PreferenceManager
 import com.bugbd.pdfprinter.model.OnboardingItem
 import kotlin.math.abs
@@ -26,6 +27,11 @@ class OnboardingActivity : AppCompatActivity() {
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         preferenceManager = PreferenceManager(this)
+        if (preferenceManager.get(Constants.firstTimeVisit,false, Boolean::class)){
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
         setDarkLightThem(preferenceManager.get("them", "", String::class))
         val items = listOf(
             OnboardingItem(
@@ -62,6 +68,7 @@ class OnboardingActivity : AppCompatActivity() {
             if (binding.viewPager.currentItem + 1 < adapter.itemCount) {
                 binding.viewPager.currentItem += 1
             } else {
+                preferenceManager.set(Constants.firstTimeVisit,true)
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }
