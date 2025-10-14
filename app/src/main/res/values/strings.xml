@@ -90,4 +90,7 @@
     <string name="show_all">show all</string>
     <string name="start_scan">Start Scan</string>
     <string name="pdf">PDF</string>
+    <string name="no_qr_code_scans_yet">No qr code scans yet</string>
+    <string name="start_scanning_and_your_scan_data_will_appear_here">Start scanning and your scan data will appear here.</string>
+    <string name="start_scanning">[ 📷 Start Scanning ]</string>
 </resources>
