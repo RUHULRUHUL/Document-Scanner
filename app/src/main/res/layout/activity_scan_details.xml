@@ -65,15 +65,26 @@
             android:id="@+id/editTextContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Write or edit scanned text..."
+            android:hint="@string/write_or_edit_scanned_text"
             android:background="@null"
             android:padding="16dp"
             android:gravity="start|top"
+            android:textSize="14sp"
+            android:textColor="@color/textColor"
+            android:textColorLink="?attr/colorPrimary"
             android:textIsSelectable="true"
-            android:textSize="16sp"
-            android:inputType="textMultiLine|textCapSentences"
+            android:inputType="textMultiLine|textCapSentences|textNoSuggestions"
+            android:autoLink="all"
             android:scrollbars="vertical"
-            android:overScrollMode="always" />
+            android:overScrollMode="always"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:importantForAutofill="yes"
+            android:imeOptions="flagNoEnterAction"
+            android:cursorVisible="true"
+            android:singleLine="false"
+            android:maxLines="10" />
+
     </ScrollView>
 
 </LinearLayout>
