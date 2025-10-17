@@ -1,5 +1,6 @@
 package com.bugbd.pdfprinter
 
+import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -21,6 +22,9 @@ import com.bugbd.pdfprinter.bottom_sheet.FileSaveOptionSelectBottom
 import com.bugbd.pdfprinter.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfprinter.databinding.ActivityScanDetailsBinding
 import com.bugbd.pdfprinter.helper.Utils
+import com.bugbd.pdfprinter.helper.Utils.Companion.dismissDialog
+import com.bugbd.pdfprinter.helper.Utils.Companion.showDialog
+import com.bugbd.pdfprinter.helper.intiProgressDialog
 import com.bugbd.pdfprinter.helper.saveTextAsPdf
 import com.bugbd.pdfprinter.helper.saveTextAsTxt
 import com.bugbd.pdfprinter.local_bd.ScannerDB
@@ -31,12 +35,15 @@ class ScanDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityScanDetailsBinding
     private lateinit var scannerDB: ScannerDB
+    private lateinit var progressDialog: Dialog
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScanDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        progressDialog = intiProgressDialog(context = this, layoutInflater = layoutInflater)
         setupEditableText()
         loadScannedText()
         scannerDB = ScannerDB.getInstance(this)
@@ -45,7 +52,7 @@ class ScanDetailsActivity : AppCompatActivity() {
                 when (selectedOption) {
                     "Save as pdf" -> {
                         val fileName = "document-save-${System.currentTimeMillis()}.pdf"
-                        saveTextAsPdf(context = this,fileName,binding.editTextContent.text.toString()){ downloadUri ->
+                        saveTextAsPdf(context = this,fileName,binding.editTextContent.text.toString(), onSave = { downloadUri ->
                             val scanModel = ScanFile(
                                 fileName = fileName,
                                 fileUrl = downloadUri,
@@ -54,7 +61,14 @@ class ScanDetailsActivity : AppCompatActivity() {
                             lifecycleScope.launch {
                                 scannerDB.scannerDao().insertScanFile(scanModel)
                             }
-                        }
+                        }, isLoading = { isLoading ->
+                            if (isLoading){
+                                progressDialog.showDialog()
+                            }else{
+                                progressDialog.dismissDialog()
+                                finish()
+                            }
+                        })
                     }
                     "Save as txt" -> {
                         val fileName = "Txt-${System.currentTimeMillis()}.txt"
@@ -91,67 +105,6 @@ class ScanDetailsActivity : AppCompatActivity() {
     private fun loadScannedText() {
         val scannedText = intent.getStringExtra("scanned_text") ?: ""
         binding.editTextContent.setText(scannedText)
-    }
-
-    // --- Actions ---
-    private fun exportToPdf() {
-//        val text = binding.editTextContent.text.toString()
-//        if (text.isEmpty()) {
-//            return
-//        }
-//
-//        try {
-//            // Create a new document
-//            val pdfDocument = PdfDocument()
-//
-//            // Page info (A4 size: 595x842 points at 72 dpi)
-//            val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-//            val page = pdfDocument.startPage(pageInfo)
-//
-//            val canvas = page.canvas
-//
-//            // Paint for text
-//            val paint = Paint().apply {
-//                color = Color.BLACK
-//                textSize = 14f
-//                isAntiAlias = true
-//            }
-//
-//            val x = 40f
-//            var y = 50f
-//
-//            // Break text line by line
-//            val textLines = text.split("\n")
-//            for (line in textLines) {
-//                val wrapped = TextUtils.split(line, 80) // প্রতি লাইনে 80 অক্ষর
-//                for (segment in wrapped) {
-//                    if (y > 800) { // page overflow হলে নতুন পেজ
-//                        pdfDocument.finishPage(page)
-//                        val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pdfDocument.pages.count() + 1).create()
-//                        val newPage = pdfDocument.startPage(newPageInfo)
-//                        canvas.setBitmap(newPage.)
-//                        y = 50f
-//                    }
-//                    canvas.drawText(segment, x, y, paint)
-//                    y += paint.textSize + 6f
-//                }
-//            }
-//
-//            pdfDocument.finishPage(page)
-//
-//            // Save file
-//            val fileName = "ScannedText_${System.currentTimeMillis()}.pdf"
-//            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
-//
-//            pdfDocument.writeTo(FileOutputStream(file))
-//            pdfDocument.close()
-//
-//            showToast("PDF saved: ${file.absolutePath}")
-//
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            showToast("Failed: ${e.message}")
-//        }
     }
 
     private fun exportToWord() {

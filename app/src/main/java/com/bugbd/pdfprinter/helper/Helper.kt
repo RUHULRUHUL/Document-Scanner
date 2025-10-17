@@ -13,8 +13,12 @@ import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.print.PrintManager
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,6 +32,10 @@ import com.bugbd.pdfprinter.databinding.CustomProgressDialogBinding
 import com.bugbd.pdfprinter.databinding.CustomProgressDialogLayoutBinding
 import com.bugbd.pdfprinter.helper.Response
 import com.google.mlkit.vision.barcode.common.Barcode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
@@ -56,60 +64,120 @@ fun String.logD(tag: String = "") {
 }
 
 
-fun saveTextAsPdf(context: Context, fileName: String, text: String, onSave: (String) -> Unit) {
-        val pdfDocument = PdfDocument()
+@Suppress("DEPRECATION")
+fun saveTextAsPdf(
+    context: Context,
+    fileName: String,
+    text: String,
+    onSave: (String) -> Unit,
+    isLoading: (Boolean) -> Unit
+) {
+    isLoading(true)
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val pdfDocument = PdfDocument()
 
-        val pageWidth = 595
-        val pageHeight = 842
-        val margin = 40f
+            val pageWidth = 595
+            val pageHeight = 842
+            val marginTop = 40f
+            val marginBottom = 60f   // bottom একটু বেশি রাখো (print safe)
+            val marginLeft = 40f
+            val marginRight = 40f
 
-        val paint = Paint().apply {
-            color = Color.BLACK
-            textSize = 16f
-            typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL) // বাংলা/Unicode ঠিক রাখতে
-        }
-
-        val lineHeight = paint.textSize + 10
-        val maxLinesPerPage = ((pageHeight - margin * 2) / lineHeight).toInt()
-
-        val lines = text.split("\n")
-        var lineIndex = 0
-        var pageNumber = 1
-
-        while (lineIndex < lines.size) {
-            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
-
-            var y = margin + paint.textSize
-            var count = 0
-
-            while (count < maxLinesPerPage && lineIndex < lines.size) {
-                canvas.drawText(lines[lineIndex], margin, y, paint)
-                y += lineHeight
-                lineIndex++
-                count++
+            val paint = TextPaint().apply {
+                color = Color.BLACK
+                textSize = 12f // 🔹 smaller text size for better fit
+                typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
             }
 
-            pdfDocument.finishPage(page)
-            pageNumber++
+            val lineHeight = paint.textSize + 8f
+            val availableWidth = pageWidth - (marginLeft + marginRight)
+            val availableHeight = pageHeight - (marginTop + marginBottom)
+
+            var remainingText = text
+            var pageNumber = 1
+
+            while (remainingText.isNotEmpty()) {
+                val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                val page = pdfDocument.startPage(pageInfo)
+                val canvas = page.canvas
+
+                val staticLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    StaticLayout.Builder
+                        .obtain(remainingText, 0, remainingText.length, paint, availableWidth.toInt())
+                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                        .setLineSpacing(6f, 1f)
+                        .setIncludePad(false)
+                        .build()
+                } else {
+                    @Suppress("DEPRECATION")
+                    StaticLayout(
+                        remainingText, paint, availableWidth.toInt(),
+                        Layout.Alignment.ALIGN_NORMAL, 1f, 6f, false
+                    )
+                }
+
+                canvas.save()
+                canvas.translate(marginLeft, marginTop)
+
+                // ✅ bottom margin respect করা (visible অংশ পর্যন্ত আঁকা)
+                var lastLineIndex = 0
+                for (i in 0 until staticLayout.lineCount) {
+                    val lineBottom = staticLayout.getLineBottom(i)
+                    if (lineBottom > availableHeight - 10f) { // কিছু padding রাখো
+                        lastLineIndex = i
+                        break
+                    }
+                    lastLineIndex = i
+                }
+
+                // শুধু ফিট করা অংশ আঁকতে canvas.clipRect ব্যবহার
+                canvas.clipRect(
+                    0f,
+                    0f,
+                    availableWidth,
+                    availableHeight - 10f
+                )
+
+                staticLayout.draw(canvas)
+                canvas.restore()
+
+                if (staticLayout.height <= availableHeight) {
+                    remainingText = ""
+                } else {
+                    val lastLineEnd = staticLayout.getLineEnd(lastLineIndex)
+                    remainingText = remainingText.substring(lastLineEnd).trimStart()
+                }
+
+                pdfDocument.finishPage(page)
+                pageNumber++
+            }
+
+            val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            if (!downloads.exists()) downloads.mkdirs()
+
+            val file = File(downloads, "$fileName.pdf")
+            pdfDocument.writeTo(FileOutputStream(file))
+            pdfDocument.close()
+
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+
+            withContext(Dispatchers.Main) {
+                isLoading(false)
+                Toast.makeText(context, "PDF generated successfully:\n$uri", Toast.LENGTH_LONG).show()
+                onSave(uri.toString())
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                isLoading(false)
+                Toast.makeText(context, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
-
-        // Downloads ফোল্ডারে সেভ করি
-        val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        if (!downloads.exists()) downloads.mkdirs()
-
-        val file = File(downloads, "$fileName.pdf")
-        pdfDocument.writeTo(FileOutputStream(file))
-        pdfDocument.close()
-    val uri = FileProvider.getUriForFile(
-        context,
-        context.packageName + ".provider",
-        file
-    )
-
-        Toast.makeText(context, "PDF saved at: $uri", Toast.LENGTH_LONG).show()
-    onSave(uri.toString())
+    }
 }
 
 fun saveTextAsTxt(context: Context, fileName: String, text: String): Uri {

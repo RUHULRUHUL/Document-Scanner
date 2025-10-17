@@ -55,7 +55,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Editable Scrollable Text -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
@@ -82,9 +82,8 @@
             android:importantForAutofill="yes"
             android:imeOptions="flagNoEnterAction"
             android:cursorVisible="true"
-            android:singleLine="false"
-            android:maxLines="10" />
+            android:singleLine="false" />
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

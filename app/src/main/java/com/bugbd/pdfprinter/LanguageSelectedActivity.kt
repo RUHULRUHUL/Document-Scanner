@@ -197,6 +197,7 @@ class LanguageSelectedActivity : AppCompatActivity() {
                 val intent = Intent(this, ScanDetailsActivity::class.java)
                 intent.putExtra("scanned_text", allText)  // ✅ টেক্সট পাঠানো হচ্ছে
                 startActivity(intent)
+                finish()
                 Log.d("OCR", "Extracted: $allText")
             }
             .addOnFailureListener { e ->

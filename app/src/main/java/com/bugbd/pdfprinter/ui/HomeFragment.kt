@@ -120,13 +120,12 @@ class HomeFragment : Fragment() {
             }
         try {
             options = GmsDocumentScannerOptions.Builder()
-                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE_WITH_FILTER)
+                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
                 .setResultFormats(
                     GmsDocumentScannerOptions.RESULT_FORMAT_PDF
                 )
                 .setGalleryImportAllowed(true)
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
-                .setPageLimit(1)
         } catch (e: Exception) {
             Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
             e.printStackTrace()
