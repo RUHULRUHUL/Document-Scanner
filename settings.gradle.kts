@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Pdf Printer"
+rootProject.name = "Pdf Ocr"
 include(":app")

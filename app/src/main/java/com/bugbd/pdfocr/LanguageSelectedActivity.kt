@@ -76,6 +76,9 @@ class LanguageSelectedActivity : AppCompatActivity() {
     }
 
     private fun clickEvent() {
+        binding.icBackImg.setOnClickListener {
+            finish()
+        }
         binding.gotoScan.setOnClickListener {
             selectLanguageObj?.let { item ->
                 recognizer = if (item.script.equals("Latn",false)){
@@ -196,11 +199,12 @@ class LanguageSelectedActivity : AppCompatActivity() {
                 val intent = Intent(this, ScanDetailsActivity::class.java)
                 intent.putExtra("scanned_text", allText)  // ✅ টেক্সট পাঠানো হচ্ছে
                 startActivity(intent)
-                finish()
                 Log.d("OCR", "Extracted: $allText")
+                finish()
             }
             .addOnFailureListener { e ->
                 progressDialog.dismissDialog()
+                Utils.showToast(this, e.localizedMessage ?: "Something went wrong ")
                 Log.e("OCR", "Error: ${e.message}")
             }
 

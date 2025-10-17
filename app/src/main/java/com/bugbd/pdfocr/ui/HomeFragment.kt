@@ -30,6 +30,7 @@ import com.bugbd.pdfocr.LanguageSelectedActivity
 import com.bugbd.pdfocr.ScanDetailsActivity
 import com.bugbd.pdfocr.adapter.ScanAdapter
 import com.bugbd.pdfocr.bottom_sheet.MyBottomSheetFragment
+import com.bugbd.pdfocr.helper.Constants
 import com.bugbd.pdfocr.helper.Utils.Companion.showRenameDialog
 import com.bugbd.pdfocr.helper.getBarCodeFormat
 import com.bugbd.pdfocr.helper.getBarcodeResult
@@ -46,6 +47,7 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import java.io.File
+import kotlin.coroutines.Continuation
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -75,6 +77,10 @@ class HomeFragment : Fragment() {
         clickEvent()
         scanAdapter()
         pdfAdapter()
+        if (preferenceManager.get(Constants.isFirstTimeAutoCameraOpen, true, Boolean::class)){
+            preferenceManager.set(Constants.isFirstTimeAutoCameraOpen, false)
+            openCamera()
+        }
         return binding.root
     }
 

@@ -27,6 +27,7 @@ object Constants {
 
     var totalPdfCount = 0;
     val firstTimeVisit = "firstTimeVisit"
+    var isFirstTimeAutoCameraOpen = "isFirstTimeAutoCameraOpen"
 
 
 }

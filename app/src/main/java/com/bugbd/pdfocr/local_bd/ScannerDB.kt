@@ -16,7 +16,7 @@ import com.bugbd.pdfocr.model.ScanModel
     WifiNetwork::class,
         ScanHistory::class
     ],
-    version = 5,
+    version = 1,
     exportSchema = false
 )
 abstract class ScannerDB : RoomDatabase() {
@@ -33,7 +33,7 @@ abstract class ScannerDB : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context,
                         ScannerDB::class.java,
-                        "com.bugbd.docfilescanner-room"
+                        "com.bugbd.pdfocr-room"
                     )
                         .fallbackToDestructiveMigration()
                         .allowMainThreadQueries()

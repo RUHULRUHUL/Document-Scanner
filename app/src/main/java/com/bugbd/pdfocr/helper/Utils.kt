@@ -73,7 +73,7 @@ class Utils {
         val logTag_QR = "QRScanner"
         val QR_TXT = "qrTxt"
         val FILE_TXT = "file"
-        val channelID = "com.bugbd.docfilescanner"
+        val channelID = "com.bugbd.pdfocr"
 
 
         fun showToast(context: Context, message: String) {
