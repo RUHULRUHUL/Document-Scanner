@@ -2,7 +2,9 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
-    //id("com.google.gms.google-services")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+
 }
 
 android {
@@ -65,13 +67,14 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.3.1")
     implementation("androidx.fragment:fragment-ktx:1.8.2")
     implementation("io.github.afreakyelf:Pdf-Viewer:2.1.1")
-//    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-//    implementation("com.google.firebase:firebase-analytics")
-//    implementation("com.google.firebase:firebase-messaging-ktx")
     implementation ("androidx.navigation:navigation-fragment-ktx:2.8.9") // For Fragment support
     implementation ("androidx.navigation:navigation-ui-ktx:2.8.9")       // For Navigation UI support
     implementation("io.coil-kt:coil:2.5.0") // Replace with latest
 
+    //firebase service
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
 
     // ML Kit OCR (Multi-language)
     implementation ("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
