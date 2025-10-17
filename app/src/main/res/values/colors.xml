@@ -4,6 +4,7 @@
     <!--    <color name="colorPrimary">#FFFFFF</color>-->
     //The color of the status bar and contextual app bars; this is normally a dark version of colorPrimary.
     <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorPrimary">#C6C6C6</color>
     //The color of UI controls such as check boxes, radio buttons, and edit text boxes
     <color name="colorAccent">#03DAC5</color>
     <color name="statusBarColor">#FFFFFF</color>

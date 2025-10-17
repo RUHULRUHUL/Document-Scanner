@@ -28,11 +28,14 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            isDebuggable = false
+            isJniDebuggable = false
         }
     }
     compileOptions {
@@ -54,9 +57,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-    implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
@@ -66,10 +66,14 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.activity:activity-ktx:1.3.1")
     implementation("androidx.fragment:fragment-ktx:1.8.2")
-    implementation("io.github.afreakyelf:Pdf-Viewer:2.1.1")
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.9") // For Fragment support
-    implementation ("androidx.navigation:navigation-ui-ktx:2.8.9")       // For Navigation UI support
-    implementation("io.coil-kt:coil:2.5.0") // Replace with latest
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.9")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.8.9")
+    implementation("io.coil-kt:coil:2.5.0")
+
+    //room
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 
     //firebase service
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
@@ -92,10 +96,5 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
-
-
-
-//    implementation ("org.apache.poi:poi:5.2.3")
-//    implementation ("org.apache.poi:poi-ooxml:5.2.3")
 
 }
