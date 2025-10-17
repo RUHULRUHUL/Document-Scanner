@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.bugbd.pdfprinter"
+    namespace = "com.bugbd.pdfocr"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.bugbd.pdfprinter"
+        applicationId = "com.bugbd.pdfocr"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
