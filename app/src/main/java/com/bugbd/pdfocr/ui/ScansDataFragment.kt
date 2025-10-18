@@ -43,9 +43,6 @@ class ScansDataFragment : Fragment() {
         preferenceManager = PreferenceManager(requireContext())
         scannerDB = ScannerDB.getInstance(requireContext())
 
-        if (isAdded){
-            binding.appbar.tvTitle.text = requireContext().getString(R.string.qr_scans)
-        }
 
         getScanResult()
         clickEvent()
@@ -76,6 +73,9 @@ class ScansDataFragment : Fragment() {
     }
 
     private fun clickEvent() {
+        binding.icScan.setOnClickListener {
+            openCamera()
+        }
         binding.emptyStateInclude.actionButton.setOnClickListener {
             openCamera()
         }
