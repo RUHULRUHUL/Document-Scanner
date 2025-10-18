@@ -57,6 +57,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var scannerLauncher: ActivityResultLauncher<IntentSenderRequest>
     private lateinit var options: GmsDocumentScannerOptions.Builder
+    private lateinit var optionCardScan: GmsDocumentScannerOptions.Builder
 
     val barCodeOptions  = GmsBarcodeScannerOptions.Builder()
         .setBarcodeFormats(
@@ -97,11 +98,15 @@ class HomeFragment : Fragment() {
         try {
             options = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
-                .setResultFormats(
-                    GmsDocumentScannerOptions.RESULT_FORMAT_PDF
-                )
+                .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
                 .setGalleryImportAllowed(true)
-                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+
+            //id card scanner
+            optionCardScan = GmsDocumentScannerOptions.Builder()
+                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE_WITH_FILTER)
+                .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
+                .setGalleryImportAllowed(true)
+                .setPageLimit(2)
         } catch (e: Exception) {
             Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
             e.printStackTrace()
@@ -112,6 +117,26 @@ class HomeFragment : Fragment() {
     private fun openCamera() {
         try {
             GmsDocumentScanning.getClient(options.build())
+                .getStartScanIntent(requireActivity())
+                .addOnSuccessListener { intentSender: IntentSender ->
+                    scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+                }
+                .addOnFailureListener { e: Exception ->
+                    Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
+                    e.message?.let {
+                        Log.e("error", it)
+                    }
+                }
+        } catch (e: Exception) {
+            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
+            e.stackTrace
+        }
+
+    }
+
+    private fun openCameraForIdCardScan() {
+        try {
+            GmsDocumentScanning.getClient(optionCardScan.build())
                 .getStartScanIntent(requireActivity())
                 .addOnSuccessListener { intentSender: IntentSender ->
                     scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
@@ -219,34 +244,38 @@ class HomeFragment : Fragment() {
                     startActivity(Intent(requireContext(), LanguageSelectedActivity::class.java))
                 }
                 2 -> {
-                    openCamera()
+                    openCameraForIdCardScan()
                 }
                 3 -> {
-                    val barCodeScanner = GmsBarcodeScanning.getClient(requireContext(), barCodeOptions)
-                    barCodeScanner.startScan()
-                        .addOnSuccessListener { barcode ->
-                            lifecycleScope.launch {
-                                val formatType = getBarCodeFormat(type = barcode.valueType,barcode)
-                                val scanData = getBarcodeResult(type = barcode.valueType,barcode)
-                                val scanHistory = ScanHistory(0, formatType, scanData, Utils.getCurrentTimeMills())
-                                scannerDB.scannerDao().insertScanHistory(scanHistory)
-                                val intent = Intent(requireContext(), ScanDetailsActivity::class.java)
-                                intent.putExtra("scanned_text", scanData)
-                                startActivity(intent)
-                                Log.d("barcodes", "Extracted: $scanData")
-                            }
-                        }
-                        .addOnCanceledListener {
-                            // Task canceled
-                        }
-                        .addOnFailureListener { e ->
-                            // Task failed with an exception
-                        }
+                    startQRCodeScan()
                 }
             }
         }
         binding.scanItemRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.scanItemRV.adapter = adapter
+    }
+
+    private fun startQRCodeScan() {
+        val barCodeScanner = GmsBarcodeScanning.getClient(requireContext(), barCodeOptions)
+        barCodeScanner.startScan()
+            .addOnSuccessListener { barcode ->
+                lifecycleScope.launch {
+                    val formatType = getBarCodeFormat(type = barcode.valueType,barcode)
+                    val scanData = getBarcodeResult(type = barcode.valueType,barcode)
+                    val scanHistory = ScanHistory(0, formatType, scanData, Utils.getCurrentTimeMills())
+                    scannerDB.scannerDao().insertScanHistory(scanHistory)
+                    val intent = Intent(requireContext(), ScanDetailsActivity::class.java)
+                    intent.putExtra("scanned_text", scanData)
+                    startActivity(intent)
+                    Log.d("barcodes", "Extracted: $scanData")
+                }
+            }
+            .addOnCanceledListener {
+                Utils.showToast(requireContext(),"scan cancel" )
+            }
+            .addOnFailureListener { e ->
+                Utils.showToast(requireContext(),e.message?:"Something went wrong" )
+            }
     }
 
     private fun pdfAdapter() {
