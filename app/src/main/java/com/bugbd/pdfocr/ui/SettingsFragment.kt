@@ -68,7 +68,7 @@ class SettingsFragment : Fragment() {
 
         // ✅ Privacy Policy
         binding.privacyPolicy.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, "https://sites.google.com/view/qr-code-wifi-scanner".toUri())
+            val intent = Intent(Intent.ACTION_VIEW, "https://sites.google.com/view/pdf-ocr".toUri())
             startActivity(intent)
         }
 
