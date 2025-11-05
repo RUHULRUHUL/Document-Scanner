@@ -73,6 +73,7 @@
             android:textColor="@color/textColor"
             android:textColorLink="?attr/colorPrimary"
             android:textIsSelectable="true"
+            android:descendantFocusability="afterDescendants"
             android:inputType="textMultiLine|textCapSentences|textNoSuggestions"
             android:autoLink="all"
             android:scrollbars="vertical"
