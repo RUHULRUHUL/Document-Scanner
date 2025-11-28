@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.bugbd.pdfocr.R
 import com.bugbd.pdfocr.databinding.DocumentItemBinding
+import com.bugbd.pdfocr.helper.PdfBitmapCache
 import com.bugbd.pdfocr.helper.Utils
 import com.bugbd.pdfocr.helper.Utils.Companion.formatFileSize
 import com.bugbd.pdfocr.helper.Utils.Companion.getPdfFileSizeFromUri
@@ -21,8 +24,6 @@ class PdfAdapter(
     private val shareEvent:(model: ScanFile) -> Unit
 ) : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
     private val list: MutableList<ScanFile> = mutableListOf()
-    private val scope = MainScope()
-
     fun updateItems(newList: List<ScanFile>) {
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize() = list.size
@@ -49,6 +50,7 @@ class PdfAdapter(
     }
 
     override fun getItemCount(): Int {
+
         return list.size
     }
 
@@ -57,16 +59,43 @@ class PdfAdapter(
         try {
             val item = list[position]
             if (item.fileName.isNotEmpty()){
-                renderFirstPageFromPdfUri(context, item.fileUrl.toUri()) { bitmap, totalPages ->
-                    if (bitmap != null) {
-                        holder.binding.icon.setImageBitmap(bitmap)
-                        holder.binding.pageTxt.text = totalPages.toString()
+                if (item.fileName.contains(".jpeg", ignoreCase = true) ||
+                    item.fileName.contains(".jpg", ignoreCase = true) ||
+                    item.fileName.contains(".png", ignoreCase = true)) {
+
+                    holder.binding.icon.load(item.fileUrl) {
+                        placeholder(R.drawable.ic_text_file) // optional
+                        error(R.drawable.ic_text_file)             // optional
+                        crossfade(true)                     // smooth fade animation
                     }
+                    val sizeBytes = getPdfFileSizeFromUri(context, item.fileUrl.toUri())
+                    val readableSize = formatFileSize(sizeBytes)
+                    holder.binding.title.text = item.fileName
+                    holder.binding.tag.text = "Img"
+                    holder.binding.pageTxt.text = "1"
+                    holder.binding.timeAgoTxt.text = "${Utils.timeAgo(item.time)}    $readableSize"
                 }
-                val sizeBytes = getPdfFileSizeFromUri(context, list[position].fileUrl.toUri())
-                val readableSize = formatFileSize(sizeBytes)
-                holder.binding.title.text = list[position].fileName
-                holder.binding.timeAgoTxt.text = "${Utils.timeAgo(list[position].time)}    $readableSize"
+                else{
+                    val uri = item.fileUrl.toUri()
+                    val cacheKey = item.fileUrl
+                    val cachedBitmap = PdfBitmapCache.get(cacheKey)
+                    if (cachedBitmap != null) {
+                        holder.binding.icon.setImageBitmap(cachedBitmap)
+                        holder.binding.pageTxt.text = "1"
+                    } else {
+                        renderFirstPageFromPdfUri(context, uri) { bitmap, totalPages ->
+                            if (bitmap != null) {
+                                holder.binding.icon.setImageBitmap(bitmap)
+                                holder.binding.pageTxt.text = totalPages.toString()
+                                PdfBitmapCache.put(cacheKey, bitmap)
+                            }
+                        }
+                    }
+                    val sizeBytes = getPdfFileSizeFromUri(context, uri)
+                    val readableSize = formatFileSize(sizeBytes)
+                    holder.binding.title.text = item.fileName
+                    holder.binding.timeAgoTxt.text = "${Utils.timeAgo(item.time)}    $readableSize"
+                }
                 holder.binding.mainLayout.setOnClickListener {
                     val item = list[position]
                     "pdf path: ${item.fileUrl}".logD()

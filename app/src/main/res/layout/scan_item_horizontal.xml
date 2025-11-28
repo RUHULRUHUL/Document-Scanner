@@ -20,10 +20,10 @@
 
         <ImageView
             android:id="@+id/itemIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_ocr_file"
+            android:src="@drawable/pdf"
             android:scaleType="centerCrop" />
     </FrameLayout>
 
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         tools:text="Image to pdf"
         android:textStyle="bold"
-        android:textSize="13sp"
+        android:textSize="12sp"
         android:textColor="@color/textColor"
         android:ellipsize="end"
         android:maxLines="1"

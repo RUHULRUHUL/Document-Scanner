@@ -31,6 +31,7 @@ import com.bugbd.pdfocr.ScanDetailsActivity
 import com.bugbd.pdfocr.adapter.ScanAdapter
 import com.bugbd.pdfocr.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfocr.helper.Constants
+import com.bugbd.pdfocr.helper.Utils.Companion.getImageName
 import com.bugbd.pdfocr.helper.Utils.Companion.showRenameDialog
 import com.bugbd.pdfocr.helper.getBarCodeFormat
 import com.bugbd.pdfocr.helper.getBarcodeResult
@@ -56,7 +57,10 @@ class HomeFragment : Fragment() {
     private lateinit var scannerDB: ScannerDB
 
     private lateinit var scannerLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private lateinit var imageCaptureLauncher: ActivityResultLauncher<IntentSenderRequest>
+
     private lateinit var options: GmsDocumentScannerOptions.Builder
+    private lateinit var imageCaptureOptions: GmsDocumentScannerOptions.Builder
     private lateinit var optionCardScan: GmsDocumentScannerOptions.Builder
 
     val barCodeOptions  = GmsBarcodeScannerOptions.Builder()
@@ -95,11 +99,25 @@ class HomeFragment : Fragment() {
             registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
                 documentHandleActivityResult(result)
             }
+
+        imageCaptureLauncher =
+            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+                imageCaptureActivityResult(result)
+            }
+
         try {
+            //pdf generator
             options = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
                 .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
                 .setGalleryImportAllowed(true)
+
+            //camera capture
+            imageCaptureOptions = GmsDocumentScannerOptions.Builder()
+                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+                .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
+                .setGalleryImportAllowed(true)
+                .setPageLimit(10)
 
             //id card scanner
             optionCardScan = GmsDocumentScannerOptions.Builder()
@@ -120,6 +138,26 @@ class HomeFragment : Fragment() {
                 .getStartScanIntent(requireActivity())
                 .addOnSuccessListener { intentSender: IntentSender ->
                     scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+                }
+                .addOnFailureListener { e: Exception ->
+                    Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
+                    e.message?.let {
+                        Log.e("error", it)
+                    }
+                }
+        } catch (e: Exception) {
+            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
+            e.stackTrace
+        }
+
+    }
+
+    private fun openCameraForCaptureImage() {
+        try {
+            GmsDocumentScanning.getClient(imageCaptureOptions.build())
+                .getStartScanIntent(requireActivity())
+                .addOnSuccessListener { intentSender: IntentSender ->
+                    imageCaptureLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
                 }
                 .addOnFailureListener { e: Exception ->
                     Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
@@ -232,6 +270,38 @@ class HomeFragment : Fragment() {
             e.stackTrace
         }
     }
+    private fun imageCaptureActivityResult(activityResult: ActivityResult) {
+        try {
+            "imageCaptureActivityResult".logD()
+            val resultCode = activityResult.resultCode
+            val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
+            if (resultCode == Activity.RESULT_OK && result != null) {
+                result.pages?.let { pages ->
+                    for (page in pages) {
+                        val imageUri =page.imageUri
+                        val imageName = getImageName(requireContext(),imageUri)
+                        "image name: $imageName".logD()
+                        val scanModel = ScanFile(
+                            fileName = imageName,
+                            fileUrl = imageUri.toString(),
+                            time = Utils.getCurrentTimeMills()
+                        )
+                        lifecycleScope.launch {
+                            scannerDB.scannerDao().insertScanFile(scanModel)
+                            Utils.shareImage(
+                                requireContext(),
+                                imageName,
+                                imageUri.toString()
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
+            e.stackTrace
+        }
+    }
 
 
     private fun scanAdapter() {
@@ -241,12 +311,16 @@ class HomeFragment : Fragment() {
                     openCamera()
                 }
                 1 -> {
-                    startActivity(Intent(requireContext(), LanguageSelectedActivity::class.java))
+                    //image capture
+                    openCameraForCaptureImage()
                 }
                 2 -> {
-                    openCameraForIdCardScan()
+                    startActivity(Intent(requireContext(), LanguageSelectedActivity::class.java))
                 }
                 3 -> {
+                    openCameraForIdCardScan()
+                }
+                4 -> {
                     startQRCodeScan()
                 }
             }
@@ -295,11 +369,21 @@ class HomeFragment : Fragment() {
                         browsePdfFile(it)
                     }
                     "Share" -> {
-                        Utils.shareFile(
-                            requireContext(),
-                            it.fileName,
-                            it.fileUrl
-                        )
+                        if (it.fileName.contains(".jpeg", ignoreCase = true) ||
+                            it.fileName.contains(".jpg", ignoreCase = true) ||
+                            it.fileName.contains(".png", ignoreCase = true)) {
+                            Utils.shareImage(
+                                requireContext(),
+                                it.fileName,
+                                it.fileUrl
+                            )
+                        }else{
+                            Utils.shareFile(
+                                requireContext(),
+                                it.fileName,
+                                it.fileUrl
+                            )
+                        }
                     }
                     "Print" -> {
                         printPdf(requireContext(),it.fileUrl.toUri(),it.fileName)

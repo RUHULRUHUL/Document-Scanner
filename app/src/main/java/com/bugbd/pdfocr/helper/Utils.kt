@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.content.DialogInterface
@@ -26,6 +27,7 @@ import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -79,6 +81,30 @@ class Utils {
         fun showToast(context: Context, message: String) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
+
+        fun getImageName(context: Context, uri: Uri): String {
+            return if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                getFileNameFromUri(context, uri) ?: "${System.currentTimeMillis()}.jpg"
+            } else {
+                File(uri.path ?: "").name
+            }
+        }
+
+        fun getFileNameFromUri(context: Context, uri: Uri): String? {
+            var name: String? = null
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) {
+                        name = it.getString(index)
+                    }
+                }
+            }
+            return name
+        }
+
 
 
         fun showTransparentProgressDialog(context: Context, id: Int?): Dialog {
@@ -667,6 +693,35 @@ class Utils {
             }
             context.startActivity(Intent.createChooser(shareIntent, shareTitle))
         }
+
+        fun shareImage(context: Context, shareTitle: String, filePath: String) {
+            val file = File(filePath)
+            if (!file.exists()) {
+                Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val uri = try {
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    file
+                )
+            } catch (e: IllegalArgumentException) {
+                e.printStackTrace()
+                Toast.makeText(context, "FileProvider error", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_STREAM, uri)
+                type = "image/*"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(shareIntent, shareTitle))
+        }
+
+
 
         fun customAlert(
             context: Context,
