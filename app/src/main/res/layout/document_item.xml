@@ -20,7 +20,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="10dp"
         android:background="@drawable/round_gray_radius8dp"
-        android:elevation="1dp"
+        android:elevation="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -86,6 +86,7 @@
             android:paddingHorizontal="@dimen/space_10"
             android:paddingVertical="2dp"
             android:textAlignment="center"
+            android:visibility="gone"
             android:background="@drawable/pdf_label_round_bg"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

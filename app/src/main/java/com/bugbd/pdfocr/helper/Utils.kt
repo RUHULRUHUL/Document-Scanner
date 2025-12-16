@@ -694,33 +694,6 @@ class Utils {
             context.startActivity(Intent.createChooser(shareIntent, shareTitle))
         }
 
-        fun shareImage(context: Context, shareTitle: String, filePath: String) {
-            val file = File(filePath)
-            if (!file.exists()) {
-                Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val uri = try {
-                FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    file
-                )
-            } catch (e: IllegalArgumentException) {
-                e.printStackTrace()
-                Toast.makeText(context, "FileProvider error", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
-                type = "image/*"
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            context.startActivity(Intent.createChooser(shareIntent, shareTitle))
-        }
-
 
 
         fun customAlert(
@@ -1173,14 +1146,39 @@ class Utils {
             return imageUri
         }
 
-        fun shareImage(context: Context, imageUri: Uri, text: String) {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/*"
-                putExtra(Intent.EXTRA_STREAM, imageUri) // Add image URI
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION // Grant read permission
+
+            fun shareImage(context: Context, shareTitle: String, file: File) {
+
+                if (!file.exists()) {
+                    Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    file
+                )
+
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/*"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                context.startActivity(
+                    Intent.createChooser(intent, shareTitle)
+                )
             }
-            context.startActivity(Intent.createChooser(shareIntent, text))
-        }
+
+//        fun shareImage(context: Context, imageUri: Uri, text: String) {
+//            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+//                type = "image/*"
+//                putExtra(Intent.EXTRA_STREAM, imageUri) // Add image URI
+//                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION // Grant read permission
+//            }
+//            context.startActivity(Intent.createChooser(shareIntent, text))
+//        }
 
 
         @Suppress("DEPRECATION")

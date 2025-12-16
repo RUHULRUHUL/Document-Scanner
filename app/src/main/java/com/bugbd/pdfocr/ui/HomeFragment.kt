@@ -29,9 +29,11 @@ import androidx.lifecycle.lifecycleScope
 import com.bugbd.pdfocr.LanguageSelectedActivity
 import com.bugbd.pdfocr.ScanDetailsActivity
 import com.bugbd.pdfocr.adapter.ScanAdapter
+import com.bugbd.pdfocr.bottom_sheet.BottomSheetForImage
 import com.bugbd.pdfocr.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfocr.helper.Constants
 import com.bugbd.pdfocr.helper.Utils.Companion.getImageName
+import com.bugbd.pdfocr.helper.Utils.Companion.shareImage
 import com.bugbd.pdfocr.helper.Utils.Companion.showRenameDialog
 import com.bugbd.pdfocr.helper.getBarCodeFormat
 import com.bugbd.pdfocr.helper.getBarcodeResult
@@ -41,14 +43,15 @@ import com.bugbd.pdfocr.helper.renamePdfFile
 import com.bugbd.pdfocr.model.ScanFile
 import com.bugbd.pdfocr.model.ScanHistory
 import com.bugbd.pdfocr.model.scanItems
+import com.bumptech.glide.Glide
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
+import io.getstream.photoview.dialog.PhotoViewDialog
 import java.io.File
-import kotlin.coroutines.Continuation
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -288,11 +291,6 @@ class HomeFragment : Fragment() {
                         )
                         lifecycleScope.launch {
                             scannerDB.scannerDao().insertScanFile(scanModel)
-                            Utils.shareImage(
-                                requireContext(),
-                                imageName,
-                                imageUri.toString()
-                            )
                         }
                     }
                 }
@@ -357,45 +355,65 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext())
         binding.pdfRV.setHasFixedSize(true)
         pdfAdapter = PdfAdapter(requireContext()) {
-            MyBottomSheetFragment { selectedOption ->
-                when (selectedOption) {
-                    "Rename" -> {
-                        renamePdf(it)
+            if (it.fileName.contains(".jpg",false)){
+                BottomSheetForImage { selectedOption ->
+                    when (selectedOption) {
+                        "Share" -> {
+                            if (it.fileName.contains(".jpeg", ignoreCase = true) ||
+                                it.fileName.contains(".jpg", ignoreCase = true) ||
+                                it.fileName.contains(".png", ignoreCase = true)) {
+                                val imageFile = File(it.filePath) // cache path
+                                shareImage(requireContext(), "Share Image", imageFile)
+                            }
+                        }
+                        "Delete" -> {
+                            lifecycleScope.launch {
+                                scannerDB.scannerDao().deleteFile(it)
+                                Utils.showToast(requireContext(),"${it.fileName} successfully delete")
+                            }
+                        }
+                        "Show" -> {
+                            val imageUrls = listOf(it.fileUrl)
+                            PhotoViewDialog.Builder(context = requireContext(), images = imageUrls) { imageView, url ->
+                                Glide.with(this)
+                                    .load(url)
+                                    .into(imageView)
+                            }.build().show()
+                        }
                     }
-                    "Edit" ->{
-                        openPdfInEditor(requireContext(),it.fileUrl.toUri())
-                    }
-                    "View as pdf" -> {
-                        browsePdfFile(it)
-                    }
-                    "Share" -> {
-                        if (it.fileName.contains(".jpeg", ignoreCase = true) ||
-                            it.fileName.contains(".jpg", ignoreCase = true) ||
-                            it.fileName.contains(".png", ignoreCase = true)) {
-                            Utils.shareImage(
-                                requireContext(),
-                                it.fileName,
-                                it.fileUrl
-                            )
-                        }else{
+                }.show(requireActivity().supportFragmentManager, "BottomSheetForImage")
+            }else{
+                MyBottomSheetFragment { selectedOption ->
+                    when (selectedOption) {
+                        "Rename" -> {
+                            renamePdf(it)
+                        }
+                        "Edit" ->{
+                            openPdfInEditor(requireContext(),it.fileUrl.toUri())
+                        }
+                        "View as pdf" -> {
+                            browsePdfFile(it)
+                        }
+                        "Share" -> {
                             Utils.shareFile(
                                 requireContext(),
-                                it.fileName,
+                                it.fileUrl,
                                 it.fileUrl
                             )
                         }
-                    }
-                    "Print" -> {
-                        printPdf(requireContext(),it.fileUrl.toUri(),it.fileName)
-                    }
-                    "Delete" -> {
-                        lifecycleScope.launch {
-                            scannerDB.scannerDao().deleteFile(it)
-                            Utils.showToast(requireContext(),"${it.fileName} successfully delete")
+                        "Print" -> {
+                            printPdf(requireContext(),it.fileUrl.toUri(),it.fileName)
+                        }
+                        "Delete" -> {
+                            lifecycleScope.launch {
+                                scannerDB.scannerDao().deleteFile(it)
+                                Utils.showToast(requireContext(),"${it.fileName} successfully delete")
+                            }
                         }
                     }
-                }
-            }.show(requireActivity().supportFragmentManager, "PdfOptionsBottomSheet")
+                }.show(requireActivity().supportFragmentManager, "PdfOptionsBottomSheet")
+
+            }
         }
         binding.pdfRV.adapter = pdfAdapter
         scannerDB.scannerDao().getScanFileList()

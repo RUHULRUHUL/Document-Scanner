@@ -3,6 +3,7 @@ package com.bugbd.pdfocr.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
@@ -62,20 +63,20 @@ class PdfAdapter(
                 if (item.fileName.contains(".jpeg", ignoreCase = true) ||
                     item.fileName.contains(".jpg", ignoreCase = true) ||
                     item.fileName.contains(".png", ignoreCase = true)) {
-
+                    holder.binding.pageTxt.visibility  = View.GONE
                     holder.binding.icon.load(item.fileUrl) {
-                        placeholder(R.drawable.ic_text_file) // optional
-                        error(R.drawable.ic_text_file)             // optional
-                        crossfade(true)                     // smooth fade animation
+                        placeholder(R.drawable.ic_text_file)
+                        error(R.drawable.ic_text_file)
+                        crossfade(true)
                     }
                     val sizeBytes = getPdfFileSizeFromUri(context, item.fileUrl.toUri())
                     val readableSize = formatFileSize(sizeBytes)
                     holder.binding.title.text = item.fileName
                     holder.binding.tag.text = "Img"
-                    holder.binding.pageTxt.text = "1"
                     holder.binding.timeAgoTxt.text = "${Utils.timeAgo(item.time)}    $readableSize"
                 }
                 else{
+                    holder.binding.pageTxt.visibility  = View.VISIBLE
                     val uri = item.fileUrl.toUri()
                     val cacheKey = item.fileUrl
                     val cachedBitmap = PdfBitmapCache.get(cacheKey)

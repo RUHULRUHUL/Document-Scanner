@@ -71,9 +71,9 @@ dependencies {
     implementation("io.coil-kt:coil:2.5.0")
 
     //room
-    implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.8.4")
+    kapt("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
 
     //firebase service
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
@@ -96,5 +96,10 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
+//    implementation("io.getstream:photoview:1.0.3")
+    implementation("io.getstream:photoview-dialog:1.0.3")
+    implementation ("com.github.bumptech.glide:glide:5.0.5")
+
+
 
 }

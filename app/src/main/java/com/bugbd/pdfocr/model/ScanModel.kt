@@ -120,7 +120,7 @@ data class ScanItem(
 
 val scanItems = listOf(
     ScanItem(id = 0, icon = R.drawable.pdf,"Pdf Generate"),
-    ScanItem(id = 1, icon = R.drawable.baseline_camera_24,"Image capture"),
+    ScanItem(id = 1, icon = R.drawable.baseline_camera_24,"Capture,Crop"),
     ScanItem(id = 2,icon = R.drawable.ic_qr_scan_svg,"OCR"),
     ScanItem(id = 3,icon = R.drawable.ic_id_card_svg,"Card Scan"),
     ScanItem(id = 4,icon = R.drawable.baseline_qr_code_2_24,"QR Scan"),
