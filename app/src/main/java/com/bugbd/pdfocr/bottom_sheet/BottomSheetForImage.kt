@@ -35,7 +35,7 @@ class BottomSheetForImage(
         binding.recyclerViewOptions.layoutManager = LinearLayoutManager(context)
 
         val options = listOf(
-            PdfOption("Show", R.drawable.ic_file_open_svg),
+            PdfOption("Show", R.drawable.ic_show_img),
             PdfOption("Save to gallery", R.drawable.ic_image_gallary),
             PdfOption("Share", R.drawable.ic_share_svg),
             PdfOption("Delete", R.drawable.ic_c)

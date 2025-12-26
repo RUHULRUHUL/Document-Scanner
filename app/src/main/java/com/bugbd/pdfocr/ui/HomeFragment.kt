@@ -357,25 +357,19 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext())
         binding.pdfRV.setHasFixedSize(true)
         pdfAdapter = PdfAdapter(requireContext()) {
-            if (it.fileName.contains(".jpg",false)){
+            if (it.fileName.contains(".jpeg", ignoreCase = true) ||
+                it.fileName.contains(".jpg", ignoreCase = true) ||
+                it.fileName.contains(".png", ignoreCase = true)) {
                 BottomSheetForImage { selectedOption ->
                     when (selectedOption) {
                         "Share" -> {
-                            if (it.fileName.contains(".jpeg", ignoreCase = true) ||
-                                it.fileName.contains(".jpg", ignoreCase = true) ||
-                                it.fileName.contains(".png", ignoreCase = true)) {
                                 "image uri: ${it.fileUrl}".logD()
                                 shareImage(requireContext(), it.fileUrl.toString())
-                            }
                         }
                         "Save to gallery" -> {
-                            if (it.fileName.contains(".jpeg", ignoreCase = true) ||
-                                it.fileName.contains(".jpg", ignoreCase = true) ||
-                                it.fileName.contains(".png", ignoreCase = true)) {
                                 "image uri: ${it.fileUrl}".logD()
                                 val file = File(it.fileUrl.toUri().path!!)
                                 saveImageToGallery(requireContext(), file)
-                            }
                         }
                         "Delete" -> {
                             lifecycleScope.launch {
