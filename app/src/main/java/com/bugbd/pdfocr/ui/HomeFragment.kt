@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -33,6 +34,7 @@ import com.bugbd.pdfocr.bottom_sheet.BottomSheetForImage
 import com.bugbd.pdfocr.bottom_sheet.MyBottomSheetFragment
 import com.bugbd.pdfocr.helper.Constants
 import com.bugbd.pdfocr.helper.Utils.Companion.getImageName
+import com.bugbd.pdfocr.helper.Utils.Companion.saveImageToGallery
 import com.bugbd.pdfocr.helper.Utils.Companion.shareImage
 import com.bugbd.pdfocr.helper.Utils.Companion.showRenameDialog
 import com.bugbd.pdfocr.helper.getBarCodeFormat
@@ -364,6 +366,15 @@ class HomeFragment : Fragment() {
                                 it.fileName.contains(".png", ignoreCase = true)) {
                                 "image uri: ${it.fileUrl}".logD()
                                 shareImage(requireContext(), it.fileUrl.toString())
+                            }
+                        }
+                        "Save to gallery" -> {
+                            if (it.fileName.contains(".jpeg", ignoreCase = true) ||
+                                it.fileName.contains(".jpg", ignoreCase = true) ||
+                                it.fileName.contains(".png", ignoreCase = true)) {
+                                "image uri: ${it.fileUrl}".logD()
+                                val file = File(it.fileUrl.toUri().path!!)
+                                saveImageToGallery(requireContext(), file)
                             }
                         }
                         "Delete" -> {

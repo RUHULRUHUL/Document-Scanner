@@ -8,6 +8,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -67,6 +68,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import androidx.core.graphics.createBitmap
+import java.io.FileInputStream
 
 class Utils {
     companion object {
@@ -1170,6 +1172,38 @@ class Utils {
                 Intent.createChooser(intent, "Share image via")
             )
         }
+
+        fun saveImageToGallery(context: Context, sourceFile: File) {
+            val resolver = context.contentResolver
+
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, sourceFile.name)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                put(
+                    MediaStore.Images.Media.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/${context.getString(R.string.app_name)}"
+                )
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            }
+
+            val imageUri = resolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            ) ?: return
+
+            resolver.openOutputStream(imageUri)?.use { output ->
+                FileInputStream(sourceFile).use { input ->
+                    input.copyTo(output)
+                }
+            }
+
+            contentValues.clear()
+            contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+            resolver.update(imageUri, contentValues, null, null)
+
+            Toast.makeText(context, "Image saved to Gallery", Toast.LENGTH_SHORT).show()
+        }
+
 
 //        fun shareImage(context: Context, imageUri: Uri, text: String) {
 //            val shareIntent = Intent(Intent.ACTION_SEND).apply {
