@@ -362,8 +362,8 @@ class HomeFragment : Fragment() {
                             if (it.fileName.contains(".jpeg", ignoreCase = true) ||
                                 it.fileName.contains(".jpg", ignoreCase = true) ||
                                 it.fileName.contains(".png", ignoreCase = true)) {
-                                val imageFile = File(it.filePath) // cache path
-                                shareImage(requireContext(), "Share Image", imageFile)
+                                "image uri: ${it.fileUrl}".logD()
+                                shareImage(requireContext(), it.fileUrl.toString())
                             }
                         }
                         "Delete" -> {

@@ -1146,30 +1146,30 @@ class Utils {
             return imageUri
         }
 
+        fun shareImage(context: Context, imagePath: String) {
+            val file = File(imagePath.toUri().path ?: return)
 
-            fun shareImage(context: Context, shareTitle: String, file: File) {
-
-                if (!file.exists()) {
-                    Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
-                    return
-                }
-
-                val uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    file
-                )
-
-                val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "image/*"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-
-                context.startActivity(
-                    Intent.createChooser(intent, shareTitle)
-                )
+            if (!file.exists()) {
+                Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
+                return
             }
+
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/*"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            context.startActivity(
+                Intent.createChooser(intent, "Share image via")
+            )
+        }
 
 //        fun shareImage(context: Context, imageUri: Uri, text: String) {
 //            val shareIntent = Intent(Intent.ACTION_SEND).apply {
