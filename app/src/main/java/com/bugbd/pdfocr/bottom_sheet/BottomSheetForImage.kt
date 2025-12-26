@@ -10,6 +10,7 @@ import com.bugbd.pdfocr.R
 import com.bugbd.pdfocr.adapter.PdfOptionsAdapter
 import com.bugbd.pdfocr.databinding.BottomSheetBinding
 import com.bugbd.pdfocr.model.PdfOption
+import com.bugbd.pdfocr.model.imageOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -34,14 +35,11 @@ class BottomSheetForImage(
         // RecyclerView setup
         binding.recyclerViewOptions.layoutManager = LinearLayoutManager(context)
 
-        val options = listOf(
-            PdfOption("Show", R.drawable.ic_show_img),
-            PdfOption("Save to gallery", R.drawable.ic_image_gallary),
-            PdfOption("Share", R.drawable.ic_share_svg),
-            PdfOption("Delete", R.drawable.ic_c)
-        )
+        val items = mutableListOf<PdfOption>()
+        items.clear()
+        items.addAll(imageOptions)
 
-        val adapter = PdfOptionsAdapter(options) { option ->
+        val adapter = PdfOptionsAdapter(items) { option ->
             dismiss()
             onOptionSelected(option.title)
         }

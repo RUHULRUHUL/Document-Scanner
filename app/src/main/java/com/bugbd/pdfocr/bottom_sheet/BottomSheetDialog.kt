@@ -10,6 +10,7 @@ import com.bugbd.pdfocr.R
 import com.bugbd.pdfocr.adapter.PdfOptionsAdapter
 import com.bugbd.pdfocr.databinding.BottomSheetBinding
 import com.bugbd.pdfocr.model.PdfOption
+import com.bugbd.pdfocr.model.pdfOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -33,17 +34,11 @@ class MyBottomSheetFragment(
 
         // RecyclerView setup
         binding.recyclerViewOptions.layoutManager = LinearLayoutManager(context)
+        val items = mutableListOf<PdfOption>()
+        items.clear()
+        items.addAll(pdfOptions)
 
-        val options = listOf(
-            PdfOption("View as pdf", R.drawable.ic_file_open_svg),
-            PdfOption("Rename", R.drawable.ic_rename_file),
-            PdfOption("Edit", R.drawable.ic_file_edit_svg),
-            PdfOption("Share", R.drawable.ic_share_svg),
-            PdfOption("Print", R.drawable.ic_printer_svg),
-            PdfOption("Delete", R.drawable.ic_c)
-        )
-
-        val adapter = PdfOptionsAdapter(options) { option ->
+        val adapter = PdfOptionsAdapter(items) { option ->
             dismiss()
             onOptionSelected(option.title)
         }

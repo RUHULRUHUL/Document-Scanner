@@ -125,3 +125,19 @@ val scanItems = listOf(
 //    ScanItem(id = 3,icon = R.drawable.ic_id_card_svg,"Card Scan"),
     ScanItem(id = 4,icon = R.drawable.baseline_qr_code_2_24,"QR Scan"),
 )
+
+val pdfOptions = listOf(
+    PdfOption("View as pdf", R.drawable.ic_file_open_svg),
+    PdfOption("Rename", R.drawable.ic_rename_file),
+    PdfOption("Edit", R.drawable.ic_file_edit_svg),
+    PdfOption("Share", R.drawable.ic_share_svg),
+    PdfOption("Print", R.drawable.ic_printer_svg),
+    PdfOption("Delete", R.drawable.ic_c)
+)
+
+val imageOptions = listOf(
+    PdfOption("Show", R.drawable.ic_show_img),
+    PdfOption("Save to gallery", R.drawable.ic_image_gallary),
+    PdfOption("Share", R.drawable.ic_share_svg),
+    PdfOption("Delete", R.drawable.ic_c)
+)

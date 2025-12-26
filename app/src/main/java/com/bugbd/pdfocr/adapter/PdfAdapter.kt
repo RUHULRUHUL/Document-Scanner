@@ -98,15 +98,20 @@ class PdfAdapter(
                     holder.binding.timeAgoTxt.text = "${Utils.timeAgo(item.time)}    $readableSize"
                 }
                 holder.binding.mainLayout.setOnClickListener {
-                    val item = list[position]
-                    "pdf path: ${item.fileUrl}".logD()
-                    shareEvent(list[position])
+                    // Use bindingAdapterPosition to get the current valid position
+                    val currentPosition = holder.bindingAdapterPosition
+                    if (currentPosition != RecyclerView.NO_POSITION) {
+                        val currentItem = list[currentPosition]
+                        "pdf path: ${currentItem.fileUrl}".logD()
+                        shareEvent(currentItem)
+                    }
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
 
     class ViewHolder(val binding: DocumentItemBinding) : RecyclerView.ViewHolder(binding.root)
 }
