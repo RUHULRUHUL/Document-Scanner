@@ -4,14 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.bugbd.pdfocr.adapter.OnboardingAdapter
 import com.bugbd.pdfocr.databinding.ActivityOnboardingBinding
 import com.bugbd.pdfocr.ext.setDarkLightThem
 import com.bugbd.pdfocr.helper.Constants
 import com.bugbd.pdfocr.local_bd.PreferenceManager
 import com.bugbd.pdfocr.model.OnboardingItem
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class OnboardingActivity : AppCompatActivity() {
@@ -69,6 +74,33 @@ class OnboardingActivity : AppCompatActivity() {
             page.translationX = -50f * position
             page.scaleY = 0.85f + (1 - abs(position)) * 0.15f
         }
+
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+
+                if (position == 2) {
+                    // last onboarding page
+                    binding.btnNext.setBackgroundColor(
+                        ContextCompat.getColor(this@OnboardingActivity, R.color.green)
+                    )
+                    binding.btnNext.text = "Get Started"
+                    lifecycleScope.launch {
+                        delay(500)
+                        preferenceManager.set(Constants.firstTimeVisit,true)
+                        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                        finish()
+                    }
+
+                } else {
+                    // other pages
+                    binding.btnNext.setBackgroundColor(
+                        ContextCompat.getColor(this@OnboardingActivity, R.color.gray)
+                    )
+                    binding.btnNext.text = "Next"
+                }
+            }
+        })
 
         binding.btnNext.setOnClickListener {
             if (binding.viewPager.currentItem + 1 < adapter.itemCount) {
