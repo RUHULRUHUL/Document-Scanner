@@ -39,6 +39,8 @@ import com.bugbd.pdfocr.helper.getRequiredPermissions
 import com.bugbd.pdfocr.helper.logD
 import com.bugbd.pdfocr.local_bd.ScannerDB
 import com.bugbd.pdfocr.model.ScanFile
+import com.bugbd.pdfocr.helper.AdManager
+import com.google.android.gms.ads.AdRequest
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
@@ -60,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var scannerDB: ScannerDB
     private lateinit var progressDialog: Dialog
+    private lateinit var adManager: AdManager
 
 
 
@@ -80,12 +83,20 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.homeFragmentContainer) as NavHostFragment
         navController = navHostFragment.navController
         initView()
+        loadBannerAd()
+    }
+
+    private fun loadBannerAd() {
+        val adRequest = AdRequest.Builder().build()
+        binding.adView.loadAd(adRequest)
     }
 
     private fun initInstance() {
         progressDialog = intiProgressDialog(context = this, layoutInflater = layoutInflater)
         scannerDB = ScannerDB.getInstance(this)
         preferenceManager = PreferenceManager(this)
+        adManager = AdManager(this)
+        adManager.loadInterstitialAd()
         permissionHelper = PermissionHelper(context = this, activity = this) {}
         permissionHelper.initLauncher {
             permissionLauncher = it
@@ -255,11 +266,13 @@ class MainActivity : AppCompatActivity() {
                                 )
                                 lifecycleScope.launch {
                                     scannerDB.scannerDao().insertScanFile(scanModel)
-                                    Utils.shareFile(
-                                        this@MainActivity,
-                                        newFile.name,
-                                        externalUri.toString()
-                                    )
+                                    adManager.showInterstitialAdWithLogic(this@MainActivity) {
+                                        Utils.shareFile(
+                                            this@MainActivity,
+                                            newFile.name,
+                                            externalUri.toString()
+                                        )
+                                    }
                                 }
                             } else {
                                 val externalUri = FileProvider.getUriForFile(
@@ -276,11 +289,13 @@ class MainActivity : AppCompatActivity() {
                                 )
                                 lifecycleScope.launch {
                                     scannerDB.scannerDao().insertScanFile(scanModel)
-                                    Utils.shareFile(
-                                        this@MainActivity,
-                                        fileName,
-                                        externalUri.toString()
-                                    )
+                                    adManager.showInterstitialAdWithLogic(this@MainActivity) {
+                                        Utils.shareFile(
+                                            this@MainActivity,
+                                            fileName,
+                                            externalUri.toString()
+                                        )
+                                    }
                                 }
                             }
                         } catch (e: Exception) {

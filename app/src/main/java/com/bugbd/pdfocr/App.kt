@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import com.bugbd.pdfocr.helper.Utils.Companion.channelID
+import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        MobileAds.initialize(this) {}
         CoroutineScope(Dispatchers.IO).launch {
             createNotificationChannel(applicationContext)
         }

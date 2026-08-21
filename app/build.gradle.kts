@@ -100,6 +100,6 @@ dependencies {
     implementation("io.getstream:photoview-dialog:1.0.3")
     implementation ("com.github.bumptech.glide:glide:5.0.5")
 
-
-
+    // AdMob
+    implementation("com.google.android.gms:play-services-ads:23.6.0")
 }
