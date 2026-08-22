@@ -818,17 +818,16 @@ class Utils {
 
             return pdfFiles.mapNotNull { file ->
                 try {
+                    val size = file.length()
+                    if (size <= 0) return@mapNotNull null
+
                     val uri = Uri.fromFile(file)
-                    val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-                    val pdfRenderer = PdfRenderer(pfd)
-                    val pageCount = pdfRenderer.pageCount
-                    pdfRenderer.close()
-                    pfd.close()
+                    val pageCount = getPdfPageCountFromFile(file)
 
                     PdfFileItem(
                         uri = uri,
                         name = file.name,
-                        sizeInBytes = file.length(),
+                        sizeInBytes = size,
                         pageCount = pageCount,
                         createdTimeMillis = file.lastModified()
                     )
@@ -852,17 +851,16 @@ class Utils {
 
             for (file in pdfFiles) {
                 try {
+                    val size = file.length()
+                    if (size <= 0) continue
+
                     val uri = Uri.fromFile(file)
-                    val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-                    val renderer = PdfRenderer(pfd)
-                    val pageCount = renderer.pageCount
-                    renderer.close()
-                    pfd.close()
+                    val pageCount = getPdfPageCountFromFile(file)
 
                     val item = PdfFileItem(
                         uri = uri,
                         name = file.name,
-                        sizeInBytes = file.length(),
+                        sizeInBytes = size,
                         pageCount = pageCount,
                         createdTimeMillis = file.lastModified()
                     )
@@ -872,7 +870,6 @@ class Utils {
                     // skip this file if error
                 }
             }
-
             return pdfFileItems
         }
 
@@ -897,7 +894,7 @@ class Utils {
                 while (it.moveToNext()) {
                     val filePath = it.getString(columnIndex)
                     val file = File(filePath)
-                    if (file.exists()) {
+                    if (file.exists() && file.length() > 0) {
                         pdfList.add(file)
                     }
                 }
@@ -1326,29 +1323,36 @@ class Utils {
             onResult: (bitmap: Bitmap?, totalPages: Int) -> Unit
         ) {
             CoroutineScope(Dispatchers.IO).launch {
-                var bitmap: Bitmap? = null
-                var totalPages = 0
+                try {
+                    var bitmap: Bitmap? = null
+                    var totalPages = 0
 
-                val contentResolver = context.contentResolver
-                val fileDescriptor = contentResolver.openFileDescriptor(pdfUri, "r")
-                if (fileDescriptor != null) {
-                    val renderer = PdfRenderer(fileDescriptor)
-                    totalPages = renderer.pageCount
+                    val contentResolver = context.contentResolver
+                    val fileDescriptor = contentResolver.openFileDescriptor(pdfUri, "r")
+                    if (fileDescriptor != null) {
+                        val renderer = PdfRenderer(fileDescriptor)
+                        totalPages = renderer.pageCount
 
-                    if (totalPages > 0) {
-                        val page = renderer.openPage(0)
-                        bitmap = createBitmap(page.width, page.height)
-                        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        page.close()
+                        if (totalPages > 0) {
+                            val page = renderer.openPage(0)
+                            bitmap = createBitmap(page.width, page.height)
+                            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                            page.close()
+                        }
+
+                        renderer.close()
+                        fileDescriptor.close()
                     }
 
-                    renderer.close()
-                    fileDescriptor.close()
-                }
-
-                // Switch to Main thread to return the result
-                withContext(Dispatchers.Main) {
-                    onResult(bitmap, totalPages)
+                    // Switch to Main thread to return the result
+                    withContext(Dispatchers.Main) {
+                        onResult(bitmap, totalPages)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        onResult(null, 0)
+                    }
                 }
             }
         }
@@ -1373,9 +1377,14 @@ class Utils {
             }
         }
         fun getPdfFileSizeFromUri(context: Context, uri: Uri): Long {
-            return context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
-                it.length
-            } ?: 0L
+            return try {
+                context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
+                    it.length
+                } ?: 0L
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0L
+            }
         }
 
         fun getAllPdfFilesWithDetails(context: Context, items: (items:List<PdfFileItem>) -> Unit) {
@@ -1415,6 +1424,8 @@ class Utils {
                             val id = it.getLong(idCol)
                             val name = it.getString(nameCol) ?: "Unknown"
                             val size = it.getLong(sizeCol)
+                            if (size <= 0) continue
+
                             val dateAddedSec = it.getLong(dateAddedCol)
                             val createdTimeMillis = dateAddedSec * 1000
 
@@ -1482,6 +1493,8 @@ class Utils {
                         val id = it.getLong(idCol)
                         val name = it.getString(nameCol)
                         val size = it.getLong(sizeCol)
+                        if (size <= 0) continue
+
                         val dateAdded = it.getLong(dateCol) * 1000
                         val uri = ContentUris.withAppendedId(collection, id)
 
@@ -1514,17 +1527,19 @@ class Utils {
                 if (file.isDirectory) {
                     scanDirectoryForPdfs(context, file, pdfList)
                 } else if (file.extension.equals("pdf", ignoreCase = true)) {
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.provider",
-                        file
-                    )
-                    val name = file.name
                     val size = file.length()
-                    val createdTime = file.lastModified()
-                    val pageCount = getPdfPageCountFromFile(file)
+                    if (size > 0) {
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.provider",
+                            file
+                        )
+                        val name = file.name
+                        val createdTime = file.lastModified()
+                        val pageCount = getPdfPageCountFromFile(file)
 
-                    pdfList.add(PdfFileItem(uri, name, size, pageCount, createdTime))
+                        pdfList.add(PdfFileItem(uri, name, size, pageCount, createdTime))
+                    }
                 }
             }
         }
@@ -1553,13 +1568,15 @@ class Utils {
                 if (file.isDirectory) {
                     scanForPdfFiles(context, file, list)
                 } else if (file.extension.equals("pdf", ignoreCase = false)) {
-                    val uri = Uri.fromFile(file)
-                    val name = file.name
                     val size = file.length()
-                    val createdTime = file.lastModified()
-                    val pageCount = getPdfPageCountFromFile(file) // We'll define this next
+                    if (size > 0) {
+                        val uri = Uri.fromFile(file)
+                        val name = file.name
+                        val createdTime = file.lastModified()
+                        val pageCount = getPdfPageCountFromFile(file) // We'll define this next
 
-                    list.add(PdfFileItem(uri, name, size, pageCount, createdTime))
+                        list.add(PdfFileItem(uri, name, size, pageCount, createdTime))
+                    }
                 }
             }
         }
@@ -1647,6 +1664,8 @@ class Utils {
                         val id = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns._ID))
                         val name = it.getString(it.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME)) ?: "Unnamed"
                         val size = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns.SIZE))
+                        if (size <= 0) continue
+
                         val dateAdded = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)) * 1000
                         val uri = ContentUris.withAppendedId(uriExternal, id)
 
@@ -1717,6 +1736,8 @@ class Utils {
                     val id = it.getLong(idCol)
                     val name = it.getString(nameCol)
                     val size = it.getLong(sizeCol)
+                    if (size <= 0) continue
+
                     val dateAddedMillis = it.getLong(dateCol) * 1000
                     val mime = it.getString(mimeCol) ?: ""
 
@@ -1781,6 +1802,8 @@ class Utils {
                         val id = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns._ID))
                         val name = it.getString(it.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME)) ?: "Unnamed"
                         val size = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns.SIZE))
+                        if (size <= 0) continue
+
                         val mimeType = it.getString(it.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE)) ?: "unknown"
                         val dateAdded = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)) * 1000
                         val uri = ContentUris.withAppendedId(uriExternal, id)

@@ -422,10 +422,8 @@ class HomeFragment : Fragment() {
         }
         binding.pdfRV.adapter = pdfAdapter
         scannerDB.scannerDao().getScanFileList()
-            .observe(requireActivity()) {
-                if (it.isNotEmpty()) {
-                    pdfAdapter.updateItems(it)
-                }
+            .observe(viewLifecycleOwner) {
+                pdfAdapter.updateItems(it ?: emptyList())
             }
 
     }
