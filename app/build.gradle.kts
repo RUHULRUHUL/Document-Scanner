@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace = "com.bugbd.pdfocr"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.bugbd.pdfocr"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 5
-        versionName = "1.0.5"
+        targetSdk = 36
+        versionCode = 6
+        versionName = "1.1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
