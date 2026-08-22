@@ -284,7 +284,7 @@ class HomeFragment : Fragment() {
 
                         "Save to gallery" -> {
                             "image uri: ${it.fileUrl}".logD()
-                            val file = File(it.fileUrl.toUri().path!!)
+                            val file = Utils.getSafeFile(it.fileUrl)
                             saveImageToGallery(requireContext(), file)
                         }
 
@@ -329,7 +329,7 @@ class HomeFragment : Fragment() {
                         "Share" -> {
                             Utils.shareFile(
                                 requireContext(),
-                                it.fileUrl,
+                                it.fileName,
                                 it.fileUrl
                             )
                         }
@@ -370,8 +370,18 @@ class HomeFragment : Fragment() {
 
     private fun browsePdfFile(file: ScanFile) {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(file.fileUrl.toUri(), "application/pdf")
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        val uri = if (file.fileUrl.startsWith("content://")) {
+            file.fileUrl.toUri()
+        } else {
+            val fileToOpen = Utils.getSafeFile(file.fileUrl)
+            FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                fileToOpen
+            )
+        }
+        intent.setDataAndType(uri, "application/pdf")
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NO_HISTORY
 
         try {
             requireContext().startActivity(intent)

@@ -241,15 +241,16 @@ class MainActivity : AppCompatActivity() {
             val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
             if (resultCode == Activity.RESULT_OK && result != null) {
 
-                result.pdf?.uri?.path?.let { path ->
+                result.pdf?.uri?.let { uri ->
+                    val path = uri.toString()
                     Utils.customAlert(
                         context = this,
                         title = "Document Save",
                         message = "Are you sure,you want to save this file"
-                    ) {
+                    ) { fileName ->
                         try {
-                            val originalFile = File(path)
-                            val newFile = File(originalFile.parentFile, it)
+                            val originalFile = Utils.getSafeFile(path)
+                            val newFile = File(originalFile.parentFile, fileName)
                             val reNameFile = originalFile.renameTo(newFile)
                             if (reNameFile) {
                                 val externalUri = FileProvider.getUriForFile(
@@ -278,12 +279,12 @@ class MainActivity : AppCompatActivity() {
                                 val externalUri = FileProvider.getUriForFile(
                                     this,
                                     this.packageName + ".provider",
-                                    File(path)
+                                    originalFile
                                 )
                                 "pdf path $externalUri".logD()
-                                val fileName = externalUri.toString().substringAfterLast("/")
+                                val name = externalUri.toString().substringAfterLast("/")
                                 val scanModel = ScanFile(
-                                    fileName = fileName,
+                                    fileName = name,
                                     fileUrl = externalUri.toString(),
                                     time = Utils.getCurrentTimeMills()
                                 )
@@ -292,7 +293,7 @@ class MainActivity : AppCompatActivity() {
                                     adManager.showInterstitialAdWithLogic(this@MainActivity) {
                                         Utils.shareFile(
                                             this@MainActivity,
-                                            fileName,
+                                            name,
                                             externalUri.toString()
                                         )
                                     }

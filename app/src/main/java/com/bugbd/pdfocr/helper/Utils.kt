@@ -687,11 +687,33 @@ class Utils {
             }
         }
 
-        fun shareFile(context: Context, shareTitle: String, uri: String) {
+        fun getSafeFile(filePath: String): File {
+            val path = if (filePath.startsWith("file://")) {
+                Uri.parse(filePath).path ?: filePath
+            } else if (filePath.startsWith("file:")) {
+                filePath.substring(5)
+            } else {
+                filePath
+            }
+            return File(path)
+        }
+
+        fun shareFile(context: Context, shareTitle: String, filePath: String) {
+            val uri = if (filePath.startsWith("content://")) {
+                filePath.toUri()
+            } else {
+                val file = getSafeFile(filePath)
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+            }
             val shareIntent = Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_STREAM, uri.toUri())
+                putExtra(Intent.EXTRA_STREAM, uri)
                 type = "application/pdf"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(Intent.createChooser(shareIntent, shareTitle))
         }
@@ -1146,18 +1168,20 @@ class Utils {
         }
 
         fun shareImage(context: Context, imagePath: String) {
-            val file = File(imagePath.toUri().path ?: return)
-
-            if (!file.exists()) {
-                Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
-                return
+            val uri = if (imagePath.startsWith("content://")) {
+                Uri.parse(imagePath)
+            } else {
+                val file = getSafeFile(imagePath)
+                if (!file.exists()) {
+                    Toast.makeText(context, "File not found", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
             }
-
-            val uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.provider",
-                file
-            )
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/*"
