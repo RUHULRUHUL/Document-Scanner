@@ -185,6 +185,8 @@ class HomeFragment : Fragment() {
 
                     lifecycleScope.launch {
                         scannerDB.scannerDao().insertScanFile(scanModel)
+                        val file = Utils.getSafeFile(pdfUri.toString())
+                        Utils.savePdfToGallery(requireContext(), file)
                     }
                 }
             }
@@ -212,6 +214,8 @@ class HomeFragment : Fragment() {
 
                         lifecycleScope.launch {
                             scannerDB.scannerDao().insertScanFile(scanModel)
+                            val file = Utils.getSafeFile(imageUri.toString())
+                            Utils.saveImageToGallery(requireContext(), file)
                         }
                     }
                 }

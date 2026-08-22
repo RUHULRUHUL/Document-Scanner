@@ -267,6 +267,7 @@ class MainActivity : AppCompatActivity() {
                                 )
                                 lifecycleScope.launch {
                                     scannerDB.scannerDao().insertScanFile(scanModel)
+                                    Utils.savePdfToGallery(this@MainActivity, newFile)
                                     adManager.showInterstitialAdWithLogic(this@MainActivity) {
                                         Utils.shareFile(
                                             this@MainActivity,
@@ -290,6 +291,7 @@ class MainActivity : AppCompatActivity() {
                                 )
                                 lifecycleScope.launch {
                                     scannerDB.scannerDao().insertScanFile(scanModel)
+                                    Utils.savePdfToGallery(this@MainActivity, originalFile)
                                     adManager.showInterstitialAdWithLogic(this@MainActivity) {
                                         Utils.shareFile(
                                             this@MainActivity,

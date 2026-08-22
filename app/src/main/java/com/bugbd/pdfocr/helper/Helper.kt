@@ -2,6 +2,7 @@ package com.bugbd.pdfocr.helper
 
 import android.app.Dialog
 import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -13,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.print.PrintManager
+import android.provider.MediaStore
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -22,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.Window
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.bugbd.pdfocr.R
 import com.bugbd.pdfocr.databinding.CustomProgressDialogLayoutBinding
 import com.google.mlkit.vision.barcode.common.Barcode
 import kotlinx.coroutines.CoroutineScope
@@ -71,17 +74,16 @@ fun saveTextAsPdf(
             val pageWidth = 595
             val pageHeight = 842
             val marginTop = 40f
-            val marginBottom = 60f   // bottom একটু বেশি রাখো (print safe)
+            val marginBottom = 60f
             val marginLeft = 40f
             val marginRight = 40f
 
             val paint = TextPaint().apply {
                 color = Color.BLACK
-                textSize = 12f // 🔹 smaller text size for better fit
+                textSize = 12f
                 typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
             }
 
-            val lineHeight = paint.textSize + 8f
             val availableWidth = pageWidth - (marginLeft + marginRight)
             val availableHeight = pageHeight - (marginTop + marginBottom)
 
@@ -111,25 +113,17 @@ fun saveTextAsPdf(
                 canvas.save()
                 canvas.translate(marginLeft, marginTop)
 
-                // ✅ bottom margin respect করা (visible অংশ পর্যন্ত আঁকা)
                 var lastLineIndex = 0
                 for (i in 0 until staticLayout.lineCount) {
                     val lineBottom = staticLayout.getLineBottom(i)
-                    if (lineBottom > availableHeight - 10f) { // কিছু padding রাখো
+                    if (lineBottom > availableHeight - 10f) {
                         lastLineIndex = i
                         break
                     }
                     lastLineIndex = i
                 }
 
-                // শুধু ফিট করা অংশ আঁকতে canvas.clipRect ব্যবহার
-                canvas.clipRect(
-                    0f,
-                    0f,
-                    availableWidth,
-                    availableHeight - 10f
-                )
-
+                canvas.clipRect(0f, 0f, availableWidth, availableHeight - 10f)
                 staticLayout.draw(canvas)
                 canvas.restore()
 
@@ -144,23 +138,45 @@ fun saveTextAsPdf(
                 pageNumber++
             }
 
-            val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            if (!downloads.exists()) downloads.mkdirs()
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS + "/${context.getString(R.string.app_name)}"
+                    )
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+            }
 
-            val file = File(downloads, "$fileName.pdf")
-            pdfDocument.writeTo(FileOutputStream(file))
-            pdfDocument.close()
+            val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            } else {
+                MediaStore.Files.getContentUri("external")
+            }
 
-            val uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.provider",
-                file
-            )
+            val uri = resolver.insert(collection, contentValues)
+            if (uri != null) {
+                resolver.openOutputStream(uri)?.use { outputStream ->
+                    pdfDocument.writeTo(outputStream)
+                }
 
-            withContext(Dispatchers.Main) {
-                isLoading(false)
-                Toast.makeText(context, "PDF generated successfully:\n$uri", Toast.LENGTH_LONG).show()
-                onSave(uri.toString())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    resolver.update(uri, contentValues, null, null)
+                }
+                pdfDocument.close()
+
+                withContext(Dispatchers.Main) {
+                    isLoading(false)
+                    Toast.makeText(context, "PDF generated successfully", Toast.LENGTH_LONG).show()
+                    onSave(uri.toString())
+                }
+            } else {
+                throw Exception("Failed to create MediaStore entry")
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
@@ -171,20 +187,58 @@ fun saveTextAsPdf(
     }
 }
 
-fun saveTextAsTxt(context: Context, fileName: String, text: String): Uri {
-    val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    if (!downloads.exists()) downloads.mkdirs()
-    val file = File(downloads, "$fileName.txt")
-    file.writeText(text, Charsets.UTF_8)
+fun saveTextAsTxt(
+    context: Context,
+    fileName: String,
+    text: String,
+    onSave: (String) -> Unit
+) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS + "/${context.getString(R.string.app_name)}"
+                    )
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+            }
 
-    // FileProvider দিয়ে Uri বানাই
-    val uri = FileProvider.getUriForFile(
-        context,
-        context.packageName + ".provider",
-        file
-    )
-    Toast.makeText(context, "PDF saved at: $uri", Toast.LENGTH_LONG).show()
- return  uri
+            val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            } else {
+                MediaStore.Files.getContentUri("external")
+            }
+
+            val uri = resolver.insert(collection, contentValues)
+            if (uri != null) {
+                resolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(text.toByteArray(Charsets.UTF_8))
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    resolver.update(uri, contentValues, null, null)
+                }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Text file saved successfully", Toast.LENGTH_LONG).show()
+                    onSave(uri.toString())
+                }
+            } else {
+                throw Exception("Failed to create MediaStore entry")
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Failed to save text: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 }
 
 fun getBarCodeFormat(type: Int, barcode: Barcode): String {

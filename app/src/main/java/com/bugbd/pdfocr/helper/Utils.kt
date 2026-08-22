@@ -1195,16 +1195,19 @@ class Utils {
         }
 
         fun saveImageToGallery(context: Context, sourceFile: File) {
+            if (!sourceFile.exists()) return
             val resolver = context.contentResolver
 
             val contentValues = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, sourceFile.name)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                put(
-                    MediaStore.Images.Media.RELATIVE_PATH,
-                    Environment.DIRECTORY_PICTURES + "/${context.getString(R.string.app_name)}"
-                )
-                put(MediaStore.Images.Media.IS_PENDING, 1)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(
+                        MediaStore.Images.Media.RELATIVE_PATH,
+                        Environment.DIRECTORY_PICTURES + "/${context.getString(R.string.app_name)}"
+                    )
+                    put(MediaStore.Images.Media.IS_PENDING, 1)
+                }
             }
 
             val imageUri = resolver.insert(
@@ -1212,17 +1215,64 @@ class Utils {
                 contentValues
             ) ?: return
 
-            resolver.openOutputStream(imageUri)?.use { output ->
-                FileInputStream(sourceFile).use { input ->
-                    input.copyTo(output)
+            try {
+                resolver.openOutputStream(imageUri)?.use { output ->
+                    FileInputStream(sourceFile).use { input ->
+                        input.copyTo(output)
+                    }
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+                    resolver.update(imageUri, contentValues, null, null)
+                }
+
+                Toast.makeText(context, "Image saved to Gallery", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        fun savePdfToGallery(context: Context, sourceFile: File) {
+            if (!sourceFile.exists()) return
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, sourceFile.name)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS + "/${context.getString(R.string.app_name)}"
+                    )
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
                 }
             }
 
-            contentValues.clear()
-            contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-            resolver.update(imageUri, contentValues, null, null)
+            val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            } else {
+                MediaStore.Files.getContentUri("external")
+            }
 
-            Toast.makeText(context, "Image saved to Gallery", Toast.LENGTH_SHORT).show()
+            try {
+                val uri = resolver.insert(collection, contentValues) ?: return
+
+                resolver.openOutputStream(uri)?.use { output ->
+                    FileInputStream(sourceFile).use { input ->
+                        input.copyTo(output)
+                    }
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    resolver.update(uri, contentValues, null, null)
+                }
+                Toast.makeText(context, "PDF saved to Downloads", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
 

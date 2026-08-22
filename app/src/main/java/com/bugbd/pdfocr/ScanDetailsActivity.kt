@@ -77,14 +77,16 @@ class ScanDetailsActivity : AppCompatActivity() {
                     }
                     "Save as txt" -> {
                         val fileName = "Txt-${System.currentTimeMillis()}.txt"
-                        val uri = saveTextAsTxt(context = this,fileName,binding.editTextContent.text.toString())
-                        val scanModel = ScanFile(
-                            fileName = fileName,
-                            fileUrl = uri.toString(),
-                            time = Utils.getCurrentTimeMills()
-                        )
-                        lifecycleScope.launch {
-                            scannerDB.scannerDao().insertScanFile(scanModel)
+                        saveTextAsTxt(context = this, fileName, binding.editTextContent.text.toString()) { downloadUri ->
+                            val scanModel = ScanFile(
+                                fileName = fileName,
+                                fileUrl = downloadUri,
+                                time = Utils.getCurrentTimeMills()
+                            )
+                            lifecycleScope.launch {
+                                scannerDB.scannerDao().insertScanFile(scanModel)
+                            }
+                            finish()
                         }
                     }
                     "Save as docx" -> {
