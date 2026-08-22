@@ -70,6 +70,17 @@ class PdfAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         try {
             val item = list.getOrNull(position) ?: return
+            
+            // Animation for item appearance
+            holder.itemView.alpha = 0f
+            holder.itemView.translationY = 50f
+            holder.itemView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setStartDelay(position * 50L)
+                .start()
+
             if (item.fileName.isNotEmpty()) {
                 val fileUri = try {
                     item.fileUrl.toUri()

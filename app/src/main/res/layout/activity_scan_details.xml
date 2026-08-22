@@ -11,10 +11,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="50dp"
         app:title="Scan Details"
         android:background="@color/topBottomColor"
-        android:elevation="5dp"
+        android:elevation="0dp"
         app:titleTextColor="@color/background">
 
             <ImageView
@@ -22,35 +22,46 @@
                 android:layout_marginEnd="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="@dimen/space_10"
+                android:layout_marginStart="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:src="@drawable/baseline_arrow_back_24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 app:tint="@color/textColor" />
 
         <TextView
             app:layout_constraintStart_toEndOf="@+id/icBackImg"
             android:layout_width="0dp"
             android:textStyle="bold"
-            android:layout_marginStart="15dp"
-            android:textSize="16sp"
+            android:layout_marginStart="12dp"
+            android:textSize="18sp"
             android:text="@string/scan_details"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/saveIcon"
+            app:layout_constraintEnd_toStartOf="@+id/icCopy"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_height="wrap_content"/>
 
-            <ImageView
-                android:id="@+id/saveIcon"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="25dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:src="@drawable/outline_create_new_folder_24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:tint="@color/textColor" />
+        <ImageView
+            android:id="@+id/icCopy"
+            app:layout_constraintEnd_toStartOf="@+id/saveIcon"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/ic_copy"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:tint="@color/textColor" />
+
+        <ImageView
+            android:id="@+id/saveIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/outline_create_new_folder_24"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:tint="@color/textColor" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

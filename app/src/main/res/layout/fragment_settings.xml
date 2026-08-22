@@ -36,8 +36,8 @@
                 layout="@layout/them_item_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="6dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/appbar" />
@@ -47,14 +47,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="15dp">
+                android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_app_name"
                     app:tint="@color/textColor" />
 
@@ -65,7 +65,7 @@
                     android:layout_marginStart="12dp"
                     tools:text="App Name: Document scanner"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <!-- App Version -->
@@ -73,13 +73,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
-                android:padding="15dp">
+                android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_version_svg"
                     app:tint="@color/textColor" />
 
@@ -90,7 +90,7 @@
                     android:layout_marginStart="12dp"
                     tools:text="Version: v1.0.0"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <!-- Privacy Policy -->
@@ -99,13 +99,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
-                android:padding="15dp">
+                android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/outline_add_link_24"
                     app:tint="@color/textColor" />
 
@@ -115,7 +115,7 @@
                     android:layout_marginStart="12dp"
                     android:text="@string/privacy_policy"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <!-- Share App -->
@@ -124,13 +124,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
-                android:padding="15dp">
+                android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_share_svg"
                     app:tint="@color/textColor" />
 
@@ -140,7 +140,7 @@
                     android:layout_marginStart="12dp"
                     android:text="@string/share_app"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <!-- Rate & Review -->
@@ -149,13 +149,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
-                android:padding="15dp">
+                android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_review"
                     app:tint="@color/textColor" />
 
@@ -165,7 +165,7 @@
                     android:layout_marginStart="12dp"
                     android:text="@string/rate_amp_review"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
 
@@ -174,13 +174,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
-                android:padding="15dp">
+                android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_c"
                     app:tint="@color/textColor" />
 
@@ -190,7 +190,7 @@
                     android:layout_marginStart="12dp"
                     android:text="@string/clear_data"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
 

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bugbd.pdfocr.ScanDetailsActivity
 import com.bugbd.pdfocr.databinding.QrScanItemBinding
@@ -11,9 +13,8 @@ import com.bugbd.pdfocr.helper.Utils
 import com.bugbd.pdfocr.model.ScanHistory
 
 class QRScanAdapter(
-    val list: List<ScanHistory>,
-    val context: Context
-) : RecyclerView.Adapter<QRScanAdapter.ViewHolder>() {
+    private val context: Context
+) : ListAdapter<ScanHistory, QRScanAdapter.ViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -25,29 +26,33 @@ class QRScanAdapter(
         )
     }
 
-    override fun getItemCount(): Int {
-        return list.size
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position)
+        holder.bind(item)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        try {
-            holder.binding.title.text = list[position].title
-            holder.binding.descriptionTxt.text = list[position].description
-            val scanTime = Utils.timeAgo(list[position].time)
-            holder.binding.dateTimeTxt.text = scanTime
+    inner class ViewHolder(val binding: QrScanItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: ScanHistory) {
+            binding.title.text = item.title
+            binding.descriptionTxt.text = item.description
+            binding.dateTimeTxt.text = Utils.timeAgo(item.time)
 
-            holder.binding.mainLayout.setOnClickListener {
-                val scanHistory = list[position]
+            binding.root.setOnClickListener {
                 val intent = Intent(context, ScanDetailsActivity::class.java)
-                intent.putExtra("scanned_text", scanHistory.description)
+                intent.putExtra("scanned_text", item.description)
                 context.startActivity(intent)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-
     }
 
-    class ViewHolder(val binding: QrScanItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class DiffCallback : DiffUtil.ItemCallback<ScanHistory>() {
+        override fun areItemsTheSame(oldItem: ScanHistory, newItem: ScanHistory): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: ScanHistory, newItem: ScanHistory): Boolean {
+            return oldItem == newItem
+        }
+    }
 }
 

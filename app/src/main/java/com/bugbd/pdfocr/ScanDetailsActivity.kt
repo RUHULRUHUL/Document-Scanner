@@ -20,6 +20,7 @@ import com.bugbd.pdfocr.helper.Utils.Companion.showDialog
 import com.bugbd.pdfocr.helper.intiProgressDialog
 import com.bugbd.pdfocr.helper.saveTextAsPdf
 import com.bugbd.pdfocr.helper.saveTextAsTxt
+import com.bugbd.pdfocr.helper.logD
 import com.bugbd.pdfocr.local_bd.ScannerDB
 import com.bugbd.pdfocr.model.ScanFile
 import kotlinx.coroutines.launch
@@ -46,6 +47,11 @@ class ScanDetailsActivity : AppCompatActivity() {
         setupEditableText()
         loadScannedText()
         scannerDB = ScannerDB.getInstance(this)
+        
+        binding.icCopy.setOnClickListener {
+            copyTextToClipboard()
+        }
+
         binding.saveIcon.setOnClickListener {
             FileSaveOptionSelectBottom { selectedOption ->
                 when (selectedOption) {

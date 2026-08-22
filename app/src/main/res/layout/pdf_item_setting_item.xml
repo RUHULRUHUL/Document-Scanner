@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:padding="16dp"
+    android:padding="12dp"
     android:gravity="center_vertical"
     android:background="?attr/selectableItemBackground"
     android:layout_width="match_parent"
@@ -10,15 +10,15 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:src="@drawable/ic_pdf_img"
         app:tint="@color/textColor" />
 
     <TextView
         android:id="@+id/title"
         android:layout_marginStart="16dp"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textColor="@color/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

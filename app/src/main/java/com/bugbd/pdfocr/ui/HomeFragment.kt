@@ -1,13 +1,9 @@
 package com.bugbd.pdfocr.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
-import android.content.IntentSender
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,58 +13,52 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.bugbd.pdfocr.adapter.PdfAdapter
-import com.bugbd.pdfocr.databinding.FragmentHomeBinding
-import com.bugbd.pdfocr.helper.Utils
-import com.bugbd.pdfocr.helper.logD
-import com.bugbd.pdfocr.local_bd.PreferenceManager
-import com.bugbd.pdfocr.local_bd.ScannerDB
-import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bugbd.pdfocr.LanguageSelectedActivity
-import com.bugbd.pdfocr.ScanDetailsActivity
+import com.bugbd.pdfocr.adapter.PdfAdapter
 import com.bugbd.pdfocr.adapter.ScanAdapter
 import com.bugbd.pdfocr.bottom_sheet.BottomSheetForImage
 import com.bugbd.pdfocr.bottom_sheet.MyBottomSheetFragment
+import com.bugbd.pdfocr.local_bd.ScannerDB as LocalScannerDB
+import com.bugbd.pdfocr.local_bd.PreferenceManager
+import com.bugbd.pdfocr.databinding.FragmentHomeBinding
 import com.bugbd.pdfocr.helper.Constants
-import com.bugbd.pdfocr.helper.Utils.Companion.getImageName
+import com.bugbd.pdfocr.helper.*
 import com.bugbd.pdfocr.helper.Utils.Companion.saveImageToGallery
 import com.bugbd.pdfocr.helper.Utils.Companion.shareImage
 import com.bugbd.pdfocr.helper.Utils.Companion.showRenameDialog
-import com.bugbd.pdfocr.helper.getBarCodeFormat
-import com.bugbd.pdfocr.helper.getBarcodeResult
-import com.bugbd.pdfocr.helper.openPdfInEditor
-import com.bugbd.pdfocr.helper.printPdf
-import com.bugbd.pdfocr.helper.renamePdfFile
 import com.bugbd.pdfocr.model.ScanFile
 import com.bugbd.pdfocr.model.ScanHistory
 import com.bugbd.pdfocr.model.scanItems
 import com.bumptech.glide.Glide
+import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import io.getstream.photoview.dialog.PhotoViewDialog
+import kotlinx.coroutines.launch
 import java.io.File
 
 class HomeFragment : Fragment() {
-    private lateinit var binding: FragmentHomeBinding
-    private lateinit var preferenceManager: PreferenceManager
-    private lateinit var pdfAdapter: PdfAdapter
-    private lateinit var scannerDB: ScannerDB
+    lateinit var binding: FragmentHomeBinding
+    lateinit var preferenceManager: PreferenceManager
+    lateinit var pdfAdapter: PdfAdapter
+    lateinit var scannerDB: LocalScannerDB
 
-    private lateinit var scannerLauncher: ActivityResultLauncher<IntentSenderRequest>
-    private lateinit var imageCaptureLauncher: ActivityResultLauncher<IntentSenderRequest>
+    lateinit var scannerLauncher: ActivityResultLauncher<IntentSenderRequest>
+    lateinit var imageCaptureLauncher: ActivityResultLauncher<IntentSenderRequest>
 
-    private lateinit var options: GmsDocumentScannerOptions.Builder
-    private lateinit var imageCaptureOptions: GmsDocumentScannerOptions.Builder
-    private lateinit var optionCardScan: GmsDocumentScannerOptions.Builder
+    lateinit var options: GmsDocumentScannerOptions.Builder
+    lateinit var imageCaptureOptions: GmsDocumentScannerOptions.Builder
+    lateinit var optionCardScan: GmsDocumentScannerOptions.Builder
 
-    val barCodeOptions  = GmsBarcodeScannerOptions.Builder()
+    private val barCodeOptions = GmsBarcodeScannerOptions.Builder()
         .setBarcodeFormats(
             Barcode.FORMAT_QR_CODE,
             Barcode.FORMAT_AZTEC)
@@ -82,7 +72,7 @@ class HomeFragment : Fragment() {
 
         binding = FragmentHomeBinding.inflate(layoutInflater)
         preferenceManager = PreferenceManager(requireContext())
-        scannerDB = ScannerDB.getInstance(requireContext())
+        scannerDB = LocalScannerDB.getInstance(requireContext())
         initView()
         clickEvent()
         scanAdapter()
@@ -95,11 +85,22 @@ class HomeFragment : Fragment() {
     }
 
     private fun clickEvent() {
-
+        binding.fabStartScan.setOnClickListener {
+            openCamera()
+        }
     }
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
+        val calendar = java.util.Calendar.getInstance()
+        val hour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
+        binding.tvGreeting.text = when (hour) {
+            in 0..11 -> "Good Morning!"
+            in 12..15 -> "Good Afternoon!"
+            in 16..20 -> "Good Evening!"
+            else -> "Good Night!"
+        }
+
         scannerLauncher =
             registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
                 documentHandleActivityResult(result)
@@ -111,20 +112,17 @@ class HomeFragment : Fragment() {
             }
 
         try {
-            //pdf generator
             options = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
                 .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
                 .setGalleryImportAllowed(true)
 
-            //camera capture
             imageCaptureOptions = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
                 .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
                 .setGalleryImportAllowed(true)
                 .setPageLimit(10)
 
-            //id card scanner
             optionCardScan = GmsDocumentScannerOptions.Builder()
                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE_WITH_FILTER)
                 .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_PDF)
@@ -138,159 +136,80 @@ class HomeFragment : Fragment() {
     }
 
     private fun openCamera() {
-        try {
-            GmsDocumentScanning.getClient(options.build())
-                .getStartScanIntent(requireActivity())
-                .addOnSuccessListener { intentSender: IntentSender ->
-                    scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                }
-                .addOnFailureListener { e: Exception ->
-                    Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-                    e.message?.let {
-                        Log.e("error", it)
-                    }
-                }
-        } catch (e: Exception) {
-            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-            e.stackTrace
-        }
-
+        val scanner = GmsDocumentScanning.getClient(options.build())
+        scanner.getStartScanIntent(requireActivity())
+            .addOnSuccessListener { intentSender ->
+                scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+            }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
     }
 
     private fun openCameraForCaptureImage() {
-        try {
-            GmsDocumentScanning.getClient(imageCaptureOptions.build())
-                .getStartScanIntent(requireActivity())
-                .addOnSuccessListener { intentSender: IntentSender ->
-                    imageCaptureLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                }
-                .addOnFailureListener { e: Exception ->
-                    Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-                    e.message?.let {
-                        Log.e("error", it)
-                    }
-                }
-        } catch (e: Exception) {
-            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-            e.stackTrace
-        }
-
+        val scanner = GmsDocumentScanning.getClient(imageCaptureOptions.build())
+        scanner.getStartScanIntent(requireActivity())
+            .addOnSuccessListener { intentSender ->
+                imageCaptureLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+            }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
     }
 
     private fun openCameraForIdCardScan() {
-        try {
-            GmsDocumentScanning.getClient(optionCardScan.build())
-                .getStartScanIntent(requireActivity())
-                .addOnSuccessListener { intentSender: IntentSender ->
-                    scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                }
-                .addOnFailureListener { e: Exception ->
-                    Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-                    e.message?.let {
-                        Log.e("error", it)
-                    }
-                }
-        } catch (e: Exception) {
-            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-            e.stackTrace
-        }
-
+        val scanner = GmsDocumentScanning.getClient(optionCardScan.build())
+        scanner.getStartScanIntent(requireActivity())
+            .addOnSuccessListener { intentSender ->
+                scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+            }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
     }
 
-
-    private fun documentHandleActivityResult(activityResult: ActivityResult) {
+    private fun documentHandleActivityResult(result: ActivityResult) {
         try {
-        "scannerLauncher success".logD()
-            val resultCode = activityResult.resultCode
-            val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
-            if (resultCode == Activity.RESULT_OK && result != null) {
-                "resultCode ${Activity.RESULT_OK}".logD()
-                result.pdf?.uri?.path?.let { path ->
-                    "pdf generated path from mlkit $path".logD()
-                    "pdf generate  file uri  ${result.pdf?.uri}".logD()
-                    Utils.customAlert(
-                        context = requireContext(),
-                        title = "Document Save",
-                        message = "Are you sure,you want to save this file"
-                    ) {
-                        try {
-                            val originalFile = File(path)
-                            "pdf generated name from mlkit ${originalFile.name}".logD()
-                            val newFile = File(originalFile.parentFile, it)
-                            val reNameFile = originalFile.renameTo(newFile)
-                            if (reNameFile) {
-                                val externalUri = FileProvider.getUriForFile(
-                                    requireContext(),
-                                    requireContext().packageName + ".provider",
-                                    newFile
-                                )
+            val resultCode = result.resultCode
+            val data = result.data
+            if (resultCode == android.app.Activity.RESULT_OK) {
+                val resultData = com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult.fromActivityResultIntent(data)
+                resultData?.pdf?.let { pdf ->
+                    val pdfUri = pdf.uri
+                    val scanModel = ScanFile(
+                        id = 0,
+                        fileName = "PDF_${System.currentTimeMillis()}.pdf",
+                        fileUrl = pdfUri.toString(),
+                        time = Utils.getCurrentTimeMills()
+                    )
 
-                                "rename this file  ${newFile.path}".logD()
-                                "rename file uri  $externalUri".logD()
-                                val scanModel = ScanFile(
-                                    fileName = newFile.name,
-                                    fileUrl = externalUri.toString(),
-                                    time = Utils.getCurrentTimeMills()
-                                )
-                                lifecycleScope.launch {
-                                    scannerDB.scannerDao().insertScanFile(scanModel)
-                                    Utils.shareFile(
-                                        requireContext(),
-                                        newFile.name,
-                                        externalUri.toString()
-                                    )
-                                }
-                            } else {
-                                "rename not possible".logD()
-                                val externalUri = FileProvider.getUriForFile(
-                                    requireContext(),
-                                    requireContext().packageName + ".provider",
-                                    File(path)
-                                )
-                                "pdf uri $externalUri".logD()
-                                val fileName = externalUri.toString().substringAfterLast("/")
-                                "pdf file name $fileName".logD()
-                                val scanModel = ScanFile(
-                                    fileName = fileName,
-                                    fileUrl = externalUri.toString(),
-                                    time = Utils.getCurrentTimeMills()
-                                )
-                                lifecycleScope.launch {
-                                    scannerDB.scannerDao().insertScanFile(scanModel)
-                                    Utils.shareFile(
-                                        requireContext(),
-                                        fileName,
-                                        externalUri.toString()
-                                    )
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-                        }
+                    lifecycleScope.launch {
+                        scannerDB.scannerDao().insertScanFile(scanModel)
                     }
                 }
             }
         } catch (e: Exception) {
             Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-            e.stackTrace
+            e.printStackTrace()
         }
     }
-    private fun imageCaptureActivityResult(activityResult: ActivityResult) {
+
+    private fun imageCaptureActivityResult(result: ActivityResult) {
         try {
-            "imageCaptureActivityResult".logD()
-            val resultCode = activityResult.resultCode
-            val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
-            if (resultCode == Activity.RESULT_OK && result != null) {
-                result.pages?.let { pages ->
+            val resultCode = result.resultCode
+            val data = result.data
+            if (resultCode == android.app.Activity.RESULT_OK) {
+                val resultData = com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult.fromActivityResultIntent(data)
+                resultData?.pages?.let { pages ->
                     for (page in pages) {
-                        val imageUri =page.imageUri
-                        val imageName = getImageName(requireContext(),imageUri)
-                        "image name: $imageName".logD()
+                        val imageUri = page.imageUri
                         val scanModel = ScanFile(
-                            fileName = imageName,
+                            id = 0,
+                            fileName = "IMG_${System.currentTimeMillis()}.jpeg",
                             fileUrl = imageUri.toString(),
                             time = Utils.getCurrentTimeMills()
                         )
+
                         lifecycleScope.launch {
                             scannerDB.scannerDao().insertScanFile(scanModel)
                         }
@@ -299,7 +218,7 @@ class HomeFragment : Fragment() {
             }
         } catch (e: Exception) {
             Utils.showToast(requireContext(), e.localizedMessage ?: "Something went wrong ")
-            e.stackTrace
+            e.printStackTrace()
         }
     }
 
@@ -311,11 +230,10 @@ class HomeFragment : Fragment() {
                     openCamera()
                 }
                 1 -> {
-                    //image capture
                     openCameraForCaptureImage()
                 }
                 2 -> {
-                    startActivity(Intent(requireContext(), LanguageSelectedActivity::class.java))
+                     startActivity(Intent(requireContext(), LanguageSelectedActivity::class.java))
                 }
                 3 -> {
                     openCameraForIdCardScan()
@@ -338,9 +256,6 @@ class HomeFragment : Fragment() {
                     val scanData = getBarcodeResult(type = barcode.valueType,barcode)
                     val scanHistory = ScanHistory(0, formatType, scanData, Utils.getCurrentTimeMills())
                     scannerDB.scannerDao().insertScanHistory(scanHistory)
-                    val intent = Intent(requireContext(), ScanDetailsActivity::class.java)
-                    intent.putExtra("scanned_text", scanData)
-                    startActivity(intent)
                     Log.d("barcodes", "Extracted: $scanData")
                 }
             }
@@ -353,33 +268,42 @@ class HomeFragment : Fragment() {
     }
 
     private fun pdfAdapter() {
-        binding.pdfRV.layoutManager =
-            LinearLayoutManager(requireContext())
+        binding.pdfRV.layoutManager = LinearLayoutManager(requireContext())
         binding.pdfRV.setHasFixedSize(true)
         pdfAdapter = PdfAdapter(requireContext()) {
             if (it.fileName.contains(".jpeg", ignoreCase = true) ||
                 it.fileName.contains(".jpg", ignoreCase = true) ||
-                it.fileName.contains(".png", ignoreCase = true)) {
+                it.fileName.contains(".png", ignoreCase = true)
+            ) {
                 BottomSheetForImage { selectedOption ->
                     when (selectedOption) {
                         "Share" -> {
-                                "image uri: ${it.fileUrl}".logD()
-                                shareImage(requireContext(), it.fileUrl.toString())
+                            "image uri: ${it.fileUrl}".logD()
+                            shareImage(requireContext(), it.fileUrl.toString())
                         }
+
                         "Save to gallery" -> {
-                                "image uri: ${it.fileUrl}".logD()
-                                val file = File(it.fileUrl.toUri().path!!)
-                                saveImageToGallery(requireContext(), file)
+                            "image uri: ${it.fileUrl}".logD()
+                            val file = File(it.fileUrl.toUri().path!!)
+                            saveImageToGallery(requireContext(), file)
                         }
+
                         "Delete" -> {
                             lifecycleScope.launch {
                                 scannerDB.scannerDao().deleteFile(it)
-                                Utils.showToast(requireContext(),"${it.fileName} successfully delete")
+                                Utils.showToast(
+                                    requireContext(),
+                                    "${it.fileName} successfully delete"
+                                )
                             }
                         }
+
                         "Show" -> {
                             val imageUrls = listOf(it.fileUrl)
-                            PhotoViewDialog.Builder(context = requireContext(), images = imageUrls) { imageView, url ->
+                            PhotoViewDialog.Builder(
+                                context = requireContext(),
+                                images = imageUrls
+                            ) { imageView, url ->
                                 Glide.with(this)
                                     .load(url)
                                     .into(imageView)
@@ -387,18 +311,21 @@ class HomeFragment : Fragment() {
                         }
                     }
                 }.show(requireActivity().supportFragmentManager, "BottomSheetForImage")
-            }else{
+            } else {
                 MyBottomSheetFragment { selectedOption ->
                     when (selectedOption) {
                         "Rename" -> {
                             renamePdf(it)
                         }
-                        "Edit" ->{
-                            openPdfInEditor(requireContext(),it.fileUrl.toUri())
+
+                        "Edit" -> {
+                            openPdfInEditor(requireContext(), it.fileUrl.toUri())
                         }
+
                         "View as pdf" -> {
                             browsePdfFile(it)
                         }
+
                         "Share" -> {
                             Utils.shareFile(
                                 requireContext(),
@@ -406,38 +333,51 @@ class HomeFragment : Fragment() {
                                 it.fileUrl
                             )
                         }
+
                         "Print" -> {
-                            printPdf(requireContext(),it.fileUrl.toUri(),it.fileName)
+                            printPdf(requireContext(), it.fileUrl.toUri(), it.fileName)
                         }
+
                         "Delete" -> {
                             lifecycleScope.launch {
                                 scannerDB.scannerDao().deleteFile(it)
-                                Utils.showToast(requireContext(),"${it.fileName} successfully delete")
+                                Utils.showToast(
+                                    requireContext(),
+                                    "${it.fileName} successfully delete"
+                                )
                             }
                         }
                     }
                 }.show(requireActivity().supportFragmentManager, "PdfOptionsBottomSheet")
-
             }
         }
         binding.pdfRV.adapter = pdfAdapter
-        scannerDB.scannerDao().getScanFileList()
-            .observe(viewLifecycleOwner) {
-                pdfAdapter.updateItems(it ?: emptyList())
-            }
 
+        // Observe database changes and update the adapter automatically
+        scannerDB.scannerDao().getScanFileList().observe(viewLifecycleOwner) { list ->
+            pdfAdapter.updateItems(list)
+            
+            // Toggle empty state visibility based on data
+            if (list.isEmpty()) {
+                binding.emptyState.visibility = View.VISIBLE
+                binding.tvRecentHeader.visibility = View.GONE
+            } else {
+                binding.emptyState.visibility = View.GONE
+                binding.tvRecentHeader.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun browsePdfFile(file: ScanFile) {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(file.fileUrl.toUri(), "application/pdf")
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(file.fileUrl.toUri(), "application/pdf")
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 
-            try {
-                requireContext().startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(context, "No PDF viewer installed", Toast.LENGTH_SHORT).show()
-            }
+        try {
+            requireContext().startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "No PDF viewer installed", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun renamePdf(file: ScanFile) {
@@ -460,16 +400,7 @@ class HomeFragment : Fragment() {
                     Utils.showToast(requireContext(),"successfully rename file")
                     lifecycleScope.launch {
                         scannerDB.scannerDao().updateScanFile(scanModel)
-                        Utils.shareFile(
-                            requireContext(),
-                            newFile.name,
-                            newFileUri.toString()
-                        )
                     }
-                    "rename file name: ${newFile.name}".logD()
-                    "rename file uri: $newFileUri".logD()
-                    "newFilePath: ${newFile.path}".logD()
-                    "new absolutePath: ${newFile.absolutePath}".logD()
                 } else {
                     Log.e("Rename", "Rename failed")
                     Utils.showToast(requireContext(), "Something went wrong : Rename failed")
@@ -480,5 +411,4 @@ class HomeFragment : Fragment() {
             }
         }
     }
-
 }

@@ -3,20 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_margin="10dp"
-    android:elevation="20dp"
+    android:layout_margin="0dp"
+    android:elevation="0dp"
     android:background="@drawable/bottom_sheet_dialog_bg"
     android:layout_width="match_parent"
-    android:layout_height="320dp">
+    android:layout_height="wrap_content">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewOptions"
         android:layout_width="match_parent"
-        android:padding="@dimen/space_20"
+        android:padding="12dp"
         tools:listitem="@layout/pdf_item_setting_item"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

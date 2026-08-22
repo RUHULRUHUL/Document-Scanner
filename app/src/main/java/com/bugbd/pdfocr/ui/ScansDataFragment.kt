@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.transition.TransitionManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bugbd.pdfocr.R
@@ -34,6 +35,8 @@ class ScansDataFragment : Fragment() {
             Barcode.FORMAT_AZTEC)
         .enableAutoZoom()
         .build()
+    private lateinit var adapter: QRScanAdapter
+    
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,28 +46,32 @@ class ScansDataFragment : Fragment() {
         preferenceManager = PreferenceManager(requireContext())
         scannerDB = ScannerDB.getInstance(requireContext())
 
-
+        setupRecyclerView()
         getScanResult()
         clickEvent()
 
         return binding.root
     }
 
+    private fun setupRecyclerView() {
+        adapter = QRScanAdapter(requireContext())
+        binding.pdfRV.layoutManager = LinearLayoutManager(requireContext())
+        binding.pdfRV.setHasFixedSize(true)
+        binding.pdfRV.adapter = adapter
+    }
+
     private fun getScanResult() {
         try {
             scannerDB.scannerDao().getAllScanHistory()
-                .observe(viewLifecycleOwner) {
-                    if (it.isNullOrEmpty()){
+                .observe(viewLifecycleOwner) { list ->
+                    TransitionManager.beginDelayedTransition(binding.root as ViewGroup)
+                    if (list.isNullOrEmpty()) {
                         binding.emptyStateInclude.root.visibility = View.VISIBLE
                         binding.pdfRV.visibility = View.GONE
-                    }else{
+                    } else {
                         binding.emptyStateInclude.root.visibility = View.GONE
                         binding.pdfRV.visibility = View.VISIBLE
-                        val adapter = QRScanAdapter(it, context = requireContext())
-                        binding.pdfRV.layoutManager =
-                            LinearLayoutManager(requireContext())
-                        binding.pdfRV.setHasFixedSize(true)
-                        binding.pdfRV.adapter = adapter
+                        adapter.submitList(list)
                     }
                 }
         } catch (e: Exception) {

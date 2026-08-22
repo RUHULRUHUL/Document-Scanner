@@ -4,19 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="@dimen/space_5"
-    android:paddingVertical="50dp"
-    android:elevation="10dp"
-    android:paddingHorizontal="30dp"
+    android:layout_margin="0dp"
+    android:paddingVertical="24dp"
+    android:elevation="0dp"
+    android:paddingHorizontal="24dp"
     android:background="@drawable/round_gray_radius8dp">
 
     <TextView
         android:layout_width="match_parent"
         android:text="@string/select_an_item"
-        android:textSize="20sp"
-        android:textStyle="italic"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:textAlignment="center"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/textColor"/>
 
     <!-- Image to Text -->
     <LinearLayout
@@ -24,25 +25,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="15dp"
-        android:paddingVertical="15dp"
+        android:layout_marginTop="16dp"
+        android:paddingVertical="12dp"
         android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_language"
-            app:tint="#FF0000" />
+            app:tint="@color/button_background" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/document_to_text_ocr"
-            android:textSize="14sp"
-            android:layout_marginStart="10dp"
-            android:textStyle="italic"
-            android:paddingStart="12dp"/>
+            android:textSize="13sp"
+            android:layout_marginStart="12dp"
+            android:textColor="@color/textColor"/>
     </LinearLayout>
 
     <!-- Image to PDF -->
@@ -51,24 +51,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingVertical="15dp"
+        android:paddingVertical="12dp"
         android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_language"
-            app:tint="#FF0000" />
+            app:tint="@color/button_background" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/image_to_pdf_converter"
-            android:layout_marginStart="10dp"
-            android:textSize="14sp"
-            android:textStyle="italic"
-            android:paddingStart="12dp"/>
+            android:layout_marginStart="12dp"
+            android:textSize="13sp"
+            android:textColor="@color/textColor"/>
     </LinearLayout>
 
     <LinearLayout
@@ -76,24 +75,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingVertical="15dp"
+        android:paddingVertical="12dp"
         android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_language"
-            app:tint="#FF0000" />
+            app:tint="@color/button_background" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/id_card_scan"
-            android:layout_marginStart="10dp"
-            android:textSize="14sp"
-            android:textStyle="italic"
-            android:paddingStart="12dp"/>
+            android:layout_marginStart="12dp"
+            android:textSize="13sp"
+            android:textColor="@color/textColor"/>
     </LinearLayout>
 
 </LinearLayout>
