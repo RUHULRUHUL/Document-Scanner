@@ -25,8 +25,10 @@ import com.bugbd.pdfocr.helper.Utils.Companion.dismissDialog
 import com.bugbd.pdfocr.helper.Utils.Companion.showDialog
 import com.bugbd.pdfocr.helper.getRequiredPermissions
 import com.bugbd.pdfocr.helper.intiProgressDialog
+import com.bugbd.pdfocr.helper.logD
 import com.bugbd.pdfocr.model.LanguageSupported
 import com.bugbd.pdfocr.model.supportedLanguagesV2
+import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
@@ -81,23 +83,25 @@ class LanguageSelectedActivity : AppCompatActivity() {
         }
         binding.gotoScan.setOnClickListener {
             selectLanguageObj?.let { item ->
-                recognizer = if (item.script.equals("Latn",false)){
-                    TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-                }else if (item.script.equals("Hans",false)){
-                    TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
-                }else if (item.script.equals("Deva",false)){
-                    TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
-                }else if (item.script.equals("Jpan",false)){
-                    TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
-                }else if (item.script.equals("Kore",false)){
-                    TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
-                }else{
-                    TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-                }
+                "selectLanguageObj $item".logD()
+                updateRecognizer(item)
                 openCamera()
             }
 
         }
+    }
+
+    private fun updateRecognizer(item: LanguageSupported) {
+        "item selected: ${item.name}".logD()
+        recognizer = when {
+            item.script.equals("Latn", true) -> TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            item.script.equals("Hans", true) -> TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+            item.script.equals("Deva", true) -> TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
+            item.script.equals("Jpan", true) -> TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
+            item.script.equals("Kore", true) -> TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
+            else -> TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        }
+
     }
 
     private fun initialize() {
@@ -125,12 +129,11 @@ class LanguageSelectedActivity : AppCompatActivity() {
             }
         try {
             options = GmsDocumentScannerOptions.Builder()
-                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE)
                 .setResultFormats(
                     GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
                 )
                 .setGalleryImportAllowed(true)
-                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_BASE)
                 .setPageLimit(1)
         } catch (e: Exception) {
             Utils.showToast(this, e.localizedMessage ?: "Something went wrong ")
@@ -140,14 +143,16 @@ class LanguageSelectedActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
 
-        val adapter = LanguageAdapter(supportedLanguagesV2, this) { selectedItem ->
-            selectLanguageObj = selectedItem
-            binding.gotoScan.text = "Open camera:  ${selectedItem.name}"
-        }
+            val adapter = LanguageAdapter(supportedLanguagesV2, this) { selectedItem ->
+                selectLanguageObj = selectedItem
+                binding.gotoScan.text = "Open camera:  ${selectedItem.name}"
+                // Pre-initialize to trigger model download early
+                updateRecognizer(selectedItem)
+            }
 
-        binding.languageRV.layoutManager = GridLayoutManager(this, 2)
-        binding.languageRV.adapter = adapter
-    }
+            binding.languageRV.layoutManager = GridLayoutManager(this, 2)
+            binding.languageRV.adapter = adapter
+        }
 
     private fun openCamera() {
         try {
@@ -191,22 +196,36 @@ class LanguageSelectedActivity : AppCompatActivity() {
 
     private fun startTextRecognition(uri: Uri) {
         val image = InputImage.fromFilePath(this, uri)
-        val recognizer = TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
+        // Use the class-level recognizer selected by the user
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
                 progressDialog.dismissDialog()
                 val allText = visionText.text
                 val intent = Intent(this, ScanDetailsActivity::class.java)
-                intent.putExtra("scanned_text", allText)  // ✅ টেক্সট পাঠানো হচ্ছে
+                intent.putExtra("scanned_text", allText)
                 startActivity(intent)
                 Log.d("OCR", "Extracted: $allText")
                 finish()
             }
             .addOnFailureListener { e ->
                 progressDialog.dismissDialog()
-                Utils.showToast(this, e.localizedMessage ?: "Something went wrong ")
+                val message = e.localizedMessage ?: "Something went wrong"
+                if (e is MlKitException && (e.errorCode == MlKitException.UNAVAILABLE || message.contains("model", true))) {
+                    Utils.showToast(this, "OCR engine is being prepared. Please wait a few seconds and try again.")
+                } else {
+                    Utils.showToast(this, message)
+                }
                 Log.e("OCR", "Error: ${e.message}")
             }
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            recognizer.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

@@ -3,12 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
-    android:layout_width="110dp"
+    android:layout_width="100dp"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="1dp"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/historyItemBackground"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeColor="#F0F0F0"
+    app:strokeWidth="1dp"
     android:clickable="true"
     android:focusable="true">
 
@@ -17,19 +19,19 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="8dp">
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:cardBackgroundColor="@color/historyItemIconBg"
             app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/historyItemIconBg">
+            app:cardElevation="0dp">
 
             <ImageView
                 android:id="@+id/itemIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:layout_gravity="center"
                 android:src="@drawable/pdf"
                 app:tint="@color/button_background" />
@@ -39,7 +41,7 @@
             android:id="@+id/itemLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/textColor"

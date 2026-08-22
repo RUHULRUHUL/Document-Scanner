@@ -12,116 +12,137 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="Scan Details"
+        android:layout_height="50dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@color/topBottomColor"
-        android:elevation="5dp"
-        app:titleTextColor="@color/background">
+        android:elevation="0dp">
 
         <ImageView
             android:id="@+id/icBackImg"
-            android:layout_marginEnd="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/baseline_arrow_back_24"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="@dimen/space_10"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:src="@drawable/baseline_arrow_back_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             app:tint="@color/textColor" />
 
         <TextView
-            app:layout_constraintStart_toEndOf="@+id/icBackImg"
             android:layout_width="0dp"
-            android:textStyle="bold"
-            android:layout_marginStart="15dp"
-            android:textSize="16sp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="@string/document_to_text_ocr"
-            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@color/textColor"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_height="wrap_content"/>
+            app:layout_constraintStart_toEndOf="@+id/icBackImg"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/background"
+        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@+id/bottomLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-            <TextView
-                android:id="@+id/pdfLabelTxt"
-                android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/infoCard"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="15dp"
-                android:paddingHorizontal="5dp"
-                android:text=""
-                android:textColor="@color/textColor"
-                android:textSize="16sp"
-                android:textStyle="italic"
+                app:cardBackgroundColor="@color/historyItemIconBg"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_language"
+                        app:tint="@color/button_background" />
+
+                    <TextView
+                        android:id="@+id/pdfLabelTxt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:textColor="@color/hintColor"
+                        android:textSize="13sp"
+                        tools:text="Select language for recognition" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
-                android:id="@+id/pdfShowLabelTxt"
+                android:id="@+id/selectTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/show_all"
-                android:visibility="gone"
+                android:layout_marginTop="20dp"
+                android:text="Select Language"
                 android:textColor="@color/textColor"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/pdfLabelTxt"
-                app:layout_constraintTop_toTopOf="@+id/pdfLabelTxt" />
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/infoCard" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/languageRV"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginTop="@dimen/space_20"
-                app:layout_constraintTop_toBottomOf="@+id/pdfLabelTxt"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:itemCount="10"
-                app:spanCount="2"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layoutAnimation="@anim/layout_animation_fall_down"
+                android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/selectTitle"
+                app:spanCount="2"
+                tools:itemCount="8"
                 tools:listitem="@layout/language_row" />
 
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:id="@+id/bottomLayout"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:paddingVertical="@dimen/space_20"
-        android:elevation="@dimen/space_5"
+        android:paddingVertical="16dp"
+        android:elevation="8dp"
         android:background="@drawable/bottom_sheet_dialog_bg"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:id="@+id/gotoScan"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginHorizontal="50dp"
+            android:layout_marginHorizontal="32dp"
             android:textColor="@color/white"
-            android:drawablePadding="@dimen/space_20"
-            android:paddingStart="@dimen/space_10"
-            android:paddingVertical="2dp"
+            android:paddingVertical="12dp"
             android:text="@string/start_scan"
+            android:textSize="15sp"
+            android:textStyle="bold"
             android:textAllCaps="false"
-            android:background="@drawable/round_red_bg"
-            android:layout_height="wrap_content"/>
+            app:cornerRadius="24dp"
+            android:backgroundTint="@color/button_background"
+            android:layout_height="wrap_content"
+            app:elevation="4dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

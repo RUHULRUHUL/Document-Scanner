@@ -102,14 +102,14 @@ data class LanguageSupported(
 //)
 
 val supportedLanguagesV2 = listOf(
-    LanguageSupported("Auto Detect-(latin)", "af", "Latn"),
-    LanguageSupported("中文-(Chines)", "zh", "Hans/Hant; supported in v2"),
-    LanguageSupported("हिन्दी-(Hindi)", "zh", "Deva"),
-    LanguageSupported("日本語-(Japanese)", "ja", "Jpan; supported in v2"),
-    LanguageSupported("한국어-(Korean)", "ko", "Kore; supported in v2"),
+    LanguageSupported("Auto Detect-(latin)", "en", "Latn"),
+    LanguageSupported("中文-(Chinese)", "zh", "Hans"),
+    LanguageSupported("हिन्दी-(Hindi)", "hi", "Deva"),
+    LanguageSupported("日本語-(Japanese)", "ja", "Jpan"),
+    LanguageSupported("한국어-(Korean)", "ko", "Kore"),
     LanguageSupported("मराठी-(Marathi)", "mr", "Deva"),
     LanguageSupported("नेपाली-(Nepali)", "ne", "Deva"),
-    LanguageSupported("বাংলা-(Bangla)", "bn", "Deva)")
+    LanguageSupported("বাংলা-(Bangla)", "bn", "Deva")
 )
 
 data class ScanItem(

@@ -31,17 +31,18 @@
 
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:id="@+id/actionButton"
         android:text="@string/start_scanning"
-        style="?attr/materialButtonOutlinedStyle"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_marginTop="16dp"
         android:paddingHorizontal="32dp"
-        android:textSize="12sp"
-        android:backgroundTint="#009688"
+        android:textSize="14sp"
+        app:cornerRadius="24dp"
+        android:backgroundTint="@color/button_background"
         android:textColor="@color/white"
         app:icon="@drawable/ic_qr_scan_svg"
-        app:iconSize="18dp"
-        app:iconPadding="6dp"
+        app:iconSize="20dp"
+        app:iconPadding="8dp"
         app:iconTint="@color/white" />
 </LinearLayout>

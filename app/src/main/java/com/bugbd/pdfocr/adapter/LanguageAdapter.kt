@@ -30,18 +30,30 @@ class LanguageAdapter(
         try {
             val item = list[position]
             holder.binding.txt.text = item.name
-            holder.binding.root.setBackgroundResource(
-                if (position == selectedPosition) R.drawable.selected_round_stroke_bg
-                else R.drawable.stroke_round_bg
-            )
+            
+            val isSelected = position == selectedPosition
+            
+            // Modern selection style
+            holder.binding.root.strokeWidth = if (isSelected) 2 else 0
+            holder.binding.root.cardElevation = if (isSelected) 4f else 0f
+            
+            val textColor = if (isSelected) {
+                context.getColor(R.color.button_background)
+            } else {
+                context.getColor(R.color.textColor)
+            }
+            holder.binding.txt.setTextColor(textColor)
+            holder.binding.icon.setColorFilter(textColor)
 
             // Item click
             holder.itemView.setOnClickListener {
-                val previousPosition = selectedPosition
-                selectedPosition = position
-                notifyItemChanged(previousPosition)
-                notifyItemChanged(selectedPosition)
-                onItem(item)
+                if (selectedPosition != position) {
+                    val previousPosition = selectedPosition
+                    selectedPosition = position
+                    notifyItemChanged(previousPosition)
+                    notifyItemChanged(selectedPosition)
+                    onItem(item)
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
