@@ -52,7 +52,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-4595039973340099~6071825570" />
 
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
