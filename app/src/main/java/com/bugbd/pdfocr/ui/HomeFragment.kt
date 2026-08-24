@@ -185,6 +185,15 @@ class HomeFragment : Fragment() {
 
                     lifecycleScope.launch {
                         scannerDB.scannerDao().insertScanFile(scanModel)
+                        
+                        // Add to history
+                        val history = ScanHistory(
+                            title = scanModel.fileName,
+                            description = "Scanned PDF document",
+                            time = scanModel.time
+                        )
+                        scannerDB.scannerDao().insertScanHistory(history)
+
                         val file = Utils.getSafeFile(pdfUri.toString())
                         Utils.savePdfToGallery(requireContext(), file)
                     }
@@ -214,6 +223,15 @@ class HomeFragment : Fragment() {
 
                         lifecycleScope.launch {
                             scannerDB.scannerDao().insertScanFile(scanModel)
+
+                            // Add to history
+                            val history = ScanHistory(
+                                title = scanModel.fileName,
+                                description = "Captured image from scanner",
+                                time = scanModel.time
+                            )
+                            scannerDB.scannerDao().insertScanHistory(history)
+
                             val file = Utils.getSafeFile(imageUri.toString())
                             Utils.saveImageToGallery(requireContext(), file)
                         }

@@ -39,7 +39,7 @@ import com.bugbd.pdfocr.helper.getRequiredPermissions
 import com.bugbd.pdfocr.helper.logD
 import com.bugbd.pdfocr.local_bd.ScannerDB
 import com.bugbd.pdfocr.model.ScanFile
-import com.bugbd.pdfocr.helper.AdManager
+import com.bugbd.pdfocr.model.ScanHistory
 import com.google.android.gms.ads.AdRequest
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var scannerDB: ScannerDB
     private lateinit var progressDialog: Dialog
-    private lateinit var adManager: AdManager
 
 
 
@@ -95,8 +94,6 @@ class MainActivity : AppCompatActivity() {
         progressDialog = intiProgressDialog(context = this, layoutInflater = layoutInflater)
         scannerDB = ScannerDB.getInstance(this)
         preferenceManager = PreferenceManager(this)
-        adManager = AdManager(this)
-        adManager.loadInterstitialAd()
         permissionHelper = PermissionHelper(context = this, activity = this) {}
         permissionHelper.initLauncher {
             permissionLauncher = it
@@ -267,14 +264,20 @@ class MainActivity : AppCompatActivity() {
                                 )
                                 lifecycleScope.launch {
                                     scannerDB.scannerDao().insertScanFile(scanModel)
+                                    
+                                    val history = ScanHistory(
+                                        title = scanModel.fileName,
+                                        description = "Scanned PDF document",
+                                        time = scanModel.time
+                                    )
+                                    scannerDB.scannerDao().insertScanHistory(history)
+
                                     Utils.savePdfToGallery(this@MainActivity, newFile)
-                                    adManager.showInterstitialAdWithLogic(this@MainActivity) {
-                                        Utils.shareFile(
-                                            this@MainActivity,
-                                            newFile.name,
-                                            externalUri.toString()
-                                        )
-                                    }
+                                    Utils.shareFile(
+                                        this@MainActivity,
+                                        newFile.name,
+                                        externalUri.toString()
+                                    )
                                 }
                             } else {
                                 val externalUri = FileProvider.getUriForFile(
@@ -291,14 +294,20 @@ class MainActivity : AppCompatActivity() {
                                 )
                                 lifecycleScope.launch {
                                     scannerDB.scannerDao().insertScanFile(scanModel)
+
+                                    val history = ScanHistory(
+                                        title = scanModel.fileName,
+                                        description = "Scanned PDF document",
+                                        time = scanModel.time
+                                    )
+                                    scannerDB.scannerDao().insertScanHistory(history)
+
                                     Utils.savePdfToGallery(this@MainActivity, originalFile)
-                                    adManager.showInterstitialAdWithLogic(this@MainActivity) {
-                                        Utils.shareFile(
-                                            this@MainActivity,
-                                            name,
-                                            externalUri.toString()
-                                        )
-                                    }
+                                    Utils.shareFile(
+                                        this@MainActivity,
+                                        name,
+                                        externalUri.toString()
+                                    )
                                 }
                             }
                         } catch (e: Exception) {

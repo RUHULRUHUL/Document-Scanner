@@ -438,31 +438,76 @@ fun hideProgressDialog(progressDialog: Dialog) {
 
 
 fun renamePdfFile(context: Context, uri: Uri, newName: String): File? {
-    return if (uri.scheme.equals("file", ignoreCase = true)) {
-        // ✅ Case 1: file://
-        val originalFile = File(uri.path ?: return null)
-        val newFile = File(originalFile.parent, "$newName.pdf")
+    return try {
+        val resolver = context.contentResolver
+        val fileName = if (newName.endsWith(".pdf", ignoreCase = true)) newName else "$newName.pdf"
 
-        if (originalFile.renameTo(newFile)) {
-            newFile
-        } else null
-    } else if (uri.scheme.equals("content", ignoreCase = true)) {
-        // ✅ Case 2: content:// (FileProvider / MediaStore)
-        val contentResolver = context.contentResolver
-        val inputStream = contentResolver.openInputStream(uri) ?: return null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
 
-        val newFile = File(context.cacheDir, "$newName.pdf")
+            val updated = resolver.update(uri, contentValues, null, null)
+            if (updated > 0) {
+                contentValues.clear()
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(uri, contentValues, null, null)
+                // Returning a dummy file or attempting to get path, but MediaStore URI is preferred
+                null 
+            } else {
+                // If update fails, fallback to copying to a new file in MediaStore
+                copyToMediaStore(context, uri, fileName)
+            }
+        } else {
+            // Legacy rename or copy
+            if (uri.scheme.equals("file", ignoreCase = true)) {
+                val originalFile = File(uri.path ?: return null)
+                val newFile = File(originalFile.parent, fileName)
+                if (originalFile.renameTo(newFile)) newFile else null
+            } else {
+                copyToMediaStore(context, uri, fileName)
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
 
-        FileOutputStream(newFile).use { output ->
-            inputStream.use { input ->
+private fun copyToMediaStore(context: Context, sourceUri: Uri, newName: String): File? {
+    val resolver = context.contentResolver
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, newName)
+        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/${context.getString(R.string.app_name)}")
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+    }
+
+    val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        MediaStore.Downloads.EXTERNAL_CONTENT_URI
+    } else {
+        MediaStore.Files.getContentUri("external")
+    }
+
+    val newUri = resolver.insert(collection, contentValues)
+    return if (newUri != null) {
+        resolver.openOutputStream(newUri)?.use { output ->
+            resolver.openInputStream(sourceUri)?.use { input ->
                 input.copyTo(output)
             }
         }
-
-        newFile
-    } else {
-        null
-    }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            contentValues.clear()
+            contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+            resolver.update(newUri, contentValues, null, null)
+        }
+        // Since we are moving towards MediaStore, returning File? might be legacy. 
+        // For now, let's keep it compatible where possible.
+        if (newUri.scheme == "file") File(newUri.path!!) else null
+    } else null
 }
 
 fun openPdfInEditor(context: Context, pdfUri: Uri) {
