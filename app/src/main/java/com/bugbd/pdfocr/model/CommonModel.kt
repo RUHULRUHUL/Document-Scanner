@@ -7,7 +7,9 @@ import java.io.Serializable
 data class OnboardingItem(
     val imageRes: Int,
     val title: String,
-    val description: String
+    val description: String,
+    val lottieRes: Int? = null,
+    val gifRes: Int? = null
 )
 
 data class PdfOption(val title: String, val iconRes: Int)
@@ -20,4 +22,3 @@ data class ScanHistory(
     val description: String,
     val time:Long
 ): Serializable
-
